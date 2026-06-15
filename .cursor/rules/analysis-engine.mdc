@@ -1,0 +1,27 @@
+---
+description: Rules for the frozen analysis engine
+globs:
+  - lib/analysis/**
+alwaysApply: false
+---
+# Analysis engine (frozen)
+
+`analysis-engine.ts`, `synthetic-data-generator.ts`, and
+`analysis-engine.test.ts` are complete and verified. Treat them as frozen.
+
+- Do not change the statistics: robust median/MAD baselines, personal z-scores,
+  prior-outcome-controlled regression, moving-block bootstrap CIs, and
+  Benjamini-Hochberg correction on BOTH the confirmatory hypothesis family AND
+  the case-control precursor signals.
+- The acceptance gate: on `noiseOnly()` data the engine must surface ZERO
+  confirmatory findings after BH. Keep `analysis-engine.test.ts` green.
+- Confirmatory analysis uses the pre-registered hypothesis set only. The
+  exploratory grid is firewalled: raw stats, no insights, no BH labels.
+- `recurring_pattern` = a surfaced finding. `possible_association` = a
+  "watching" tier that is NEVER promoted into the insight feed.
+- The generator and test are server/dev tooling only (the generator imports
+  `node:fs`). Never import them into client components.
+- Consume engine output through `analyze()`. Do not reimplement any analysis
+  inside React components.
+- If a new relationship needs testing, add it to the pre-registered hypotheses
+  with a direction and lag — do not bolt ad-hoc correlations onto the UI.

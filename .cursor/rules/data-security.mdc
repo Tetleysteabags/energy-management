@@ -1,0 +1,29 @@
+---
+description: Data model, schema, and security rules
+globs:
+  - lib/db/**
+  - supabase/**
+  - drizzle/**
+  - app/api/**
+alwaysApply: false
+---
+# Data & security
+
+- Supabase Auth `user_id` on every table. Row-level security policies on all
+  tables; a user can never read or write another user's rows.
+- No third-party analytics, trackers, or telemetry anywhere in the app.
+- Never expose the Supabase service-role key to the client. Server-only secrets
+  stay in server code / route handlers.
+- Wearable OAuth tokens live in isolated columns prepared for encryption. Never
+  store raw tokens in plaintext.
+- The crash definition is stored as versioned rows (`crash_rule_versions`) with
+  an active-from date. Each crash references the rule version active when it
+  occurred. Never silently relabel historical crashes when the rule changes;
+  re-running history under a new rule is an explicit, visible action.
+- `note_tags` (LLM-derived) require user confirmation before counting as data,
+  and sending notes to an LLM is gated behind
+  `user_settings.llm_notes_enabled` (default false).
+- Days flagged crash / illness / vaccine are excluded from baselines via
+  `is_excluded`.
+- Prefer SQL migrations checked into the repo; keep the schema in sync with §3
+  of `docs/implementation-plan.md`.

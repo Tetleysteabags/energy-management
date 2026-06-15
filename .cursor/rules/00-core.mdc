@@ -1,0 +1,29 @@
+---
+description: Core guardrails for the Long COVID Recovery Pattern Tracker
+alwaysApply: true
+---
+# Long COVID Recovery Pattern Tracker
+
+Private, single-user health app. Stack: Next.js App Router + TypeScript,
+Tailwind + shadcn/ui, Recharts, Supabase (Postgres + Auth, cloud), Drizzle.
+Deploy on Vercel.
+
+Build ONE slice at a time, following `docs/implementation-plan.md`. Do not
+scaffold future slices. Write that slice's tests in the same slice.
+
+Non-negotiables:
+- The analysis engine in `lib/analysis/` is already built and verified. Do NOT
+  rewrite its statistics. `analysis-engine.test.ts` is a frozen acceptance gate
+  that must stay green; never weaken a test to make a feature pass.
+- No LLM in the inference path. Statistics decide what counts as a pattern; an
+  LLM may only structure notes and narrate already-computed results (Slice 4b),
+  behind an explicit opt-in.
+- Insights are associations, never diagnoses. Use "possible pattern", "watch",
+  "collecting data". Never "diagnosis", "causal", or verdicts like
+  "improving/declining".
+- Never analyse same-day load -> symptom as evidence (reverse causation).
+  Lagged effects only.
+- Privacy first: row-level security on every table, user-scoped queries, no
+  third-party analytics.
+- Calm UX, never gamified, never nudge toward more activity. "Insufficient data"
+  is a normal, first-class state.

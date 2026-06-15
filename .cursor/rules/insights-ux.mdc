@@ -1,0 +1,25 @@
+---
+description: Insight language and UX tone for the recovery tracker
+globs:
+  - app/**
+  - components/**
+alwaysApply: false
+---
+# Insight language & UX
+
+- Every surfaced insight shows its `n` and a confidence label
+  (`insufficient_data` / `possible_association` / `recurring_pattern`). Never
+  hide uncertainty.
+- Allowed phrasing: "possible pattern", "watch this", "collecting data", "no
+  reliable association yet". Forbidden: "diagnosis", "causal", "proven", or
+  "improving/declining" used as a verdict.
+- Calm, non-clinical, non-gamified. No streaks, no goals, no "crush it" framing.
+- Never suggest increasing activity. Where relevant, support pacing /
+  energy-envelope framing instead.
+- Check-in forms must be fast (<30s): slider inputs, sensible defaults, a "same
+  as yesterday" one-tap option.
+- "Insufficient data — collecting" is a normal state, shown plainly, especially
+  in the first ~4-6 weeks of use.
+- Keep `/analysis` (confirmed findings) visually and conceptually separate from
+  `/explore` (firewalled, labelled hypothesis-generating only — not evidence).
+- Mobile-first layout; the dashboard should feel quiet, not like a fitness app.
