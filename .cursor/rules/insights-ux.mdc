@@ -7,6 +7,8 @@ alwaysApply: false
 ---
 # Insight language & UX
 
+Full UI spec: `docs/ui-ux-spec.md`. This file is the always-on summary.
+
 - Every surfaced insight shows its `n` and a confidence label
   (`insufficient_data` / `possible_association` / `recurring_pattern`). Never
   hide uncertainty.

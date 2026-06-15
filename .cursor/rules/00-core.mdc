@@ -9,7 +9,8 @@ Tailwind + shadcn/ui, Recharts, Supabase (Postgres + Auth, cloud), Drizzle.
 Deploy on Vercel.
 
 Build ONE slice at a time, following `docs/implementation-plan.md`. Do not
-scaffold future slices. Write that slice's tests in the same slice.
+scaffold future slices. Write that slice's tests in the same slice. For UI
+details, follow `docs/ui-ux-spec.md`.
 
 Non-negotiables:
 - The analysis engine in `lib/analysis/` is already built and verified. Do NOT
