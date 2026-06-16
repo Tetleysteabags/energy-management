@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 
 const LINKS = [
+  { href: "/help", label: "How to use", hint: "The basics, in a minute" },
   { href: "/analysis", label: "Your patterns", hint: "Confirmed findings" },
   { href: "/explore", label: "Explore", hint: "Not evidence — raw questions" },
   { href: "/events", label: "Events", hint: "Optional granular log" },

@@ -73,26 +73,6 @@ for insights; even "caution" stays a soft amber.
 
 ---
 
-## Wearable timing convention
-
-A `wearable_daily_metrics` row dated day **D** holds two different windows — not
-one blended "yesterday":
-
-| Window | Metrics | Meaning |
-|---|---|---|
-| **Night ending on D's morning** | sleep, resting HR, HRV (respiratory / SpO₂ / temp if shown) | Overnight recovery attributed to wake date **D** |
-| **Daytime of D** | steps, active minutes | Activity during calendar day **D** |
-
-On the home screen for today **T**:
-
-- **Last night** card → row **T** (overnight recovery).
-- **Yesterday** card group → row **T−1** (daytime activity).
-
-Never file daytime steps under "last night". Adapters, seed data, and sync code
-must all follow this convention (mirrors Fitbit-style wake-date sleep attribution).
-
----
-
 ## Core components
 
 ### Time-aware home
@@ -240,6 +220,18 @@ does throughout the day. Keep each section compact so it stays calm, not a cockp
   hunch into a pre-registered hypothesis the engine then tests with correction.
   Exploration never becomes a finding on its own.
 
+### How to use (help)
+- Accordion of short sections (first open), under **More → How to use**; can also
+  serve as a gentle first-run intro. Calm voice, scannable — the help page itself
+  must be low-effort, since the reader is energy-limited.
+- Sections: what this is · daily check-ins · logging through the day · what it
+  does with your data · connect your Fitbit/watch · what this isn't (not medical
+  advice; Reports is for sharing with a clinician). Copy lives in
+  `how-to-use-content.md`.
+- The Fitbit steps are user-facing (tap Connect, sign in with Google, approve
+  read-only) — developer OAuth setup is invisible here. If not connected, link
+  straight to `/wearables`.
+
 ---
 
 ## Screen inventory
@@ -250,6 +242,7 @@ does throughout the day. Keep each section compact so it stays calm, not a cockp
 - `/analysis` — confirmed findings + envelope + watching (above).
 - `/events` — optional granular log; one-tap quick-add, grouped by day.
 - `/wearables` — connection + sync status; trust-led before connecting.
+- `/help` — how to use (accordion); reachable from More, doubles as first-run intro.
 - `/explore` — firewalled grid; banner "hypothesis-generating only, not evidence".
 - `/trends` — calendar heatmap of capacity (leads), then simple single-series
   charts below. Calm, not a dashboard.
