@@ -62,7 +62,32 @@ Ensure these are in [URL configuration](https://supabase.com/dashboard/project/a
 - `http://localhost:3000/auth/callback`
 - `https://energy-management-nine.vercel.app/auth/callback`
 
-The login and signup screens show **Continue with Google**, which completes sign-in via `/auth/callback`.
+### Google Health / Fitbit wearables
+
+Wearables use the **Google Health API** (Fitbit/Pixel Watch data via Google sign-in). This is separate from app login Google OAuth — use a dedicated OAuth client or the same Google Cloud project with extra scopes enabled.
+
+**1. Google Cloud**
+
+- Enable **Google Health API** on your project
+- Create (or reuse) a **Web application** OAuth client
+- **Authorized JavaScript origins:** `https://energy-management-nine.vercel.app`, `http://localhost:3000`
+- **Authorized redirect URIs:** `https://energy-management-nine.vercel.app/api/wearables/google/callback`, `http://localhost:3000/api/wearables/google/callback`
+
+**2. Vercel environment variables**
+
+```
+GOOGLE_HEALTH_CLIENT_ID=your-client-id.apps.googleusercontent.com
+GOOGLE_HEALTH_CLIENT_SECRET=your-client-secret
+WEARABLE_TOKEN_SECRET=long-random-string-at-least-32-chars
+```
+
+(`GOOGLE_OAUTH_CLIENT_*` works as a fallback alias. `WEARABLE_TOKEN_SECRET` encrypts refresh tokens at rest; on Vercel use a dedicated random string.)
+
+**3. Connect flow**
+
+Users tap **Connect Fitbit / Google Health** on `/wearables` → Google consent (read-only health scopes) → callback stores encrypted tokens → first sync runs.
+
+The old **Connect Google Health** button that only marked the DB as connected without OAuth was a dev stub and is removed.
 
 ## 4. Local app
 

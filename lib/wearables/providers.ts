@@ -28,9 +28,9 @@ export const mockWearableProvider: WearableProvider = {
 
 export const googleHealthProvider: WearableProvider = {
   id: "google_health",
-  label: "Google Health Connect",
+  label: "Fitbit / Google Health",
   async syncDailyMetrics() {
-    // Slice 6: OAuth-backed sync lands here. Until tokens exist, return empty snapshot.
+    // Real sync runs in lib/wearables/google-health/sync.ts with stored OAuth tokens.
     return {
       sleepMinutes: null,
       restingHr: null,
