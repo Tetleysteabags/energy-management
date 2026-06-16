@@ -34,6 +34,36 @@ The app completes email confirmation at `/auth/callback`. If a link says "invali
 
 For local dev only, you can disable “Confirm email” so signup works instantly.
 
+### Google sign-in (recommended)
+
+Google skips email confirmation — useful when confirmation links are failing.
+
+**1. Supabase dashboard**
+
+Open [Authentication → Providers → Google](https://supabase.com/dashboard/project/aruelkzwdqnpbxsqsqjp/auth/providers?provider=Google) and enable Google. Copy the **Callback URL** shown there (you'll need it for Google Cloud).
+
+**2. Google Cloud Console**
+
+In [Google Auth Platform → Clients](https://console.cloud.google.com/auth/clients):
+
+- Create an **OAuth client ID** → **Web application**
+- **Authorized JavaScript origins:**
+  - `http://localhost:3000`
+  - `https://your-app.vercel.app`
+- **Authorized redirect URIs** (use the Supabase callback URL from step 1):
+  - `https://aruelkzwdqnpbxsqsqjp.supabase.co/auth/v1/callback`
+
+Paste the **Client ID** and **Client secret** into the Supabase Google provider settings and save.
+
+**3. App redirect URLs** (same as email auth above)
+
+Ensure these are in [URL configuration](https://supabase.com/dashboard/project/aruelkzwdqnpbxsqsqjp/auth/url-configuration):
+
+- `http://localhost:3000/auth/callback`
+- `https://your-app.vercel.app/auth/callback`
+
+The login and signup screens show **Continue with Google**, which completes sign-in via `/auth/callback`.
+
 ## 4. Local app
 
 ```bash

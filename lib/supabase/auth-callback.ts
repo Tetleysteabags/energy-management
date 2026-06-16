@@ -11,19 +11,23 @@ function safeNextPath(next: string | null): string {
 
 export async function handleAuthCallback(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl;
+  const oauthError = searchParams.get("error");
   const code = searchParams.get("code");
   const tokenHash = searchParams.get("token_hash");
   const type = searchParams.get("type") as EmailOtpType | null;
   const next = safeNextPath(searchParams.get("next"));
 
+  if (oauthError) {
+    return NextResponse.redirect(new URL("/login?error=auth_callback_failed", origin));
+  }
+
   const successRedirect = NextResponse.redirect(new URL(next, origin));
-  const failureRedirect = NextResponse.redirect(
+  const emailFailureRedirect = NextResponse.redirect(
     new URL("/login?error=confirmation_link_invalid", origin),
   );
-
-  if (!code && !(tokenHash && type)) {
-    return failureRedirect;
-  }
+  const authFailureRedirect = NextResponse.redirect(
+    new URL("/login?error=auth_callback_failed", origin),
+  );
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -44,13 +48,13 @@ export async function handleAuthCallback(request: NextRequest) {
 
   if (code) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
-    return error ? failureRedirect : successRedirect;
+    return error ? authFailureRedirect : successRedirect;
   }
 
   if (tokenHash && type) {
     const { error } = await supabase.auth.verifyOtp({ type, token_hash: tokenHash });
-    return error ? failureRedirect : successRedirect;
+    return error ? emailFailureRedirect : successRedirect;
   }
 
-  return failureRedirect;
+  return authFailureRedirect;
 }

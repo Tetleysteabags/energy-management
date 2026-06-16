@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { getAuthCallbackUrl } from "@/lib/supabase/auth-url";
+import { AuthDivider } from "@/components/auth/auth-divider";
+import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -16,8 +18,12 @@ function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(() => {
-    if (searchParams.get("error") === "confirmation_link_invalid") {
+    const authError = searchParams.get("error");
+    if (authError === "confirmation_link_invalid") {
       return "That confirmation link is invalid or has expired. Request a fresh one below.";
+    }
+    if (authError === "auth_callback_failed") {
+      return "Sign-in didn't complete. Try Google again, or use email below.";
     }
     return null;
   });
@@ -98,7 +104,9 @@ function LoginForm() {
         <CardTitle className="text-xl font-medium">Sign in</CardTitle>
         <CardDescription>Private recovery logging — your data stays yours.</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-4">
+        <GoogleSignInButton />
+        <AuthDivider />
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
