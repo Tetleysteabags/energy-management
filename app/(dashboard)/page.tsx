@@ -1,10 +1,29 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Info } from "lucide-react";
+import { DayFactorsCard } from "@/components/dashboard/day-factors-card";
+import { Greeting } from "@/components/dashboard/greeting";
 import { HomeActions } from "@/components/dashboard/home-actions";
+import { PacingCard } from "@/components/dashboard/pacing-card";
+import { SupplementsCard } from "@/components/dashboard/supplements-card";
+import { TodayEventsCard } from "@/components/dashboard/today-events-card";
+import { WearableGlanceCard } from "@/components/dashboard/wearable-glance-card";
 import { InsightCard } from "@/components/insights/insight-card";
-import { getTopInsights } from "@/lib/analysis/queries";
+import { buildPacingNote } from "@/lib/analysis/pacing";
+import { getAnalysisOutput } from "@/lib/analysis/queries";
 import { getHomeState } from "@/lib/check-in/queries";
+import { getEventsForDate } from "@/lib/events/queries";
+import { DEFAULT_EVENT_DURATION, type EventRow } from "@/lib/events/types";
+import { getSupplementIntakeForDate } from "@/lib/supplements/queries";
+import { getWearableGlance } from "@/lib/wearables/queries";
+
+function loadMinutes(events: EventRow[], type: string): number {
+  return events
+    .filter((event) => event.event_type === type)
+    .reduce(
+      (total, event) => total + (event.duration_minutes ?? DEFAULT_EVENT_DURATION[type] ?? 0),
+      0,
+    );
+}
 
 function formatDate(isoDate: string) {
   return new Date(`${isoDate}T12:00:00`).toLocaleDateString(undefined, {
@@ -14,6 +33,12 @@ function formatDate(isoDate: string) {
   });
 }
 
+function checkInStatus(due: "morning" | "evening" | "done"): string {
+  if (due === "morning") return "Morning check-in";
+  if (due === "evening") return "Evening check-in";
+  return "All logged today";
+}
+
 export default async function HomePage() {
   const state = await getHomeState();
 
@@ -21,25 +46,44 @@ export default async function HomePage() {
     redirect("/login");
   }
 
-  const insights = await getTopInsights(2);
-  const showPacingHint =
-    state.yesterdayEvening?.capacity != null && state.yesterdayEvening.capacity <= 4;
+  const [analysis, wearableGlance, todayEvents, supplementIntake] = await Promise.all([
+    getAnalysisOutput(),
+    getWearableGlance(state.logDate),
+    getEventsForDate(state.logDate),
+    getSupplementIntakeForDate(state.logDate),
+  ]);
+
+  const insights = analysis?.feed.slice(0, 2) ?? [];
+  const events = todayEvents ?? [];
+
+  const pacingNote = buildPacingNote({
+    confirmed: analysis?.confirmatory ?? [],
+    today: {
+      meetingMinutes: loadMinutes(events, "meeting"),
+      activeMinutes: loadMinutes(events, "walk") + loadMinutes(events, "workout"),
+    },
+    recoveryStrain: analysis?.composites.recoveryStrain ?? null,
+    fallbackLowCapacity:
+      state.yesterdayEvening?.capacity != null && state.yesterdayEvening.capacity <= 4,
+  });
 
   return (
     <div className="space-y-6">
       <section className="space-y-1">
-        <h1 className="text-2xl font-medium tracking-tight">{state.greeting}</h1>
+        <Greeting initial={state.greeting} />
         <p className="text-muted-foreground text-sm">{formatDate(state.logDate)}</p>
+        <p className="text-muted-foreground text-sm">{checkInStatus(state.due)}</p>
       </section>
 
-      {showPacingHint ? (
-        <div className="border-info/30 bg-info/10 flex gap-3 rounded-lg border px-4 py-3">
-          <Info className="text-info mt-0.5 size-4 shrink-0" aria-hidden />
-          <p className="text-sm leading-relaxed">
-            Recovery looked lower last night — a gentler day might help.
-          </p>
-        </div>
-      ) : null}
+      {wearableGlance ? <WearableGlanceCard glance={wearableGlance} /> : null}
+
+      <PacingCard note={pacingNote} dateKey={state.logDate} />
+
+      <TodayEventsCard events={events} />
+
+      <DayFactorsCard logDate={state.logDate} factors={state.todayFactors} />
+
+      <SupplementsCard logDate={state.logDate} intake={supplementIntake ?? []} />
 
       <HomeActions state={state} />
 

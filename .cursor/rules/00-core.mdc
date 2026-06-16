@@ -10,7 +10,7 @@ Deploy on Vercel.
 
 Build ONE slice at a time, following `docs/implementation-plan.md`. Do not
 scaffold future slices. Write that slice's tests in the same slice. For UI
-details, follow `docs/ui-ux-spec.md`.
+details, follow `docs/ui-ux-spec.md` and `.cursor/rules/frontend-design.mdc`.
 
 Non-negotiables:
 - The analysis engine in `lib/analysis/` is already built and verified. Do NOT

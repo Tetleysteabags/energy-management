@@ -24,10 +24,3 @@ export async function getAnalysisOutput(): Promise<AnalysisOutput | null> {
 
   return runAnalysisFromDb(rows ?? [], wearables ?? []);
 }
-
-export async function getTopInsights(limit = 2) {
-  const output = await getAnalysisOutput();
-  if (!output) return [];
-
-  return output.feed.slice(0, limit);
-}

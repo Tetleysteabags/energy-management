@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { ThemeToggle } from "@/components/settings/theme-toggle";
 import { createClient } from "@/lib/supabase/server";
 
 const LINKS = [
@@ -26,6 +27,12 @@ export default async function SettingsPage() {
         </Link>
         <h1 className="text-xl font-medium">Settings</h1>
       </div>
+
+      <section className="space-y-2">
+        <h2 className="text-sm font-medium">Appearance</h2>
+        <ThemeToggle />
+      </section>
+
       <div className="space-y-2">
         {LINKS.map((link) => (
           <Link

@@ -1,3 +1,6 @@
+> **Canonical install:** `docs/ui-ux-spec.md` and `.cursor/rules/frontend-design.mdc`. This copy ships with the analysis bundle for handoff.
+
+
 # UI/UX spec — Long COVID Recovery Pattern Tracker
 
 This is the design reference for building the app's UI. It pairs with the

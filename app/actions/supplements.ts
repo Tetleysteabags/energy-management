@@ -32,6 +32,7 @@ export async function saveSupplementIntake({
 
   if (error) return { error: error.message };
 
+  revalidatePath("/");
   revalidatePath("/check-in/evening");
   return {};
 }
@@ -55,6 +56,7 @@ export async function addSupplement(name: string): Promise<ActionResult & { id?:
 
   if (error) return { error: error.message };
 
+  revalidatePath("/");
   revalidatePath("/check-in/evening");
   revalidatePath("/settings/supplements");
   return { id: data.id };

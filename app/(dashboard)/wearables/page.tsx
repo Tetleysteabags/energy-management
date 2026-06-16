@@ -5,6 +5,8 @@ import {
   disconnectWearableAction,
   syncWearableNowAction,
 } from "@/app/actions/wearables";
+import { WearableGlanceCard } from "@/components/dashboard/wearable-glance-card";
+import { getWearableGlance } from "@/lib/wearables/queries";
 import { READ_METRICS } from "@/lib/wearables/types";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
@@ -24,13 +26,6 @@ export default async function WearablesPage() {
 
   const mock = connections?.find((row) => row.provider === "mock");
   const google = connections?.find((row) => row.provider === "google_health");
-
-  const logDate = new Date().toISOString().slice(0, 10);
-  const { data: metrics } = await supabase
-    .from("wearable_daily_metrics")
-    .select("*")
-    .eq("user_id", user.id)
-    .eq("log_date", logDate);
 
   const connected = [mock, google].find((row) => row?.status === "connected");
 
@@ -79,7 +74,7 @@ export default async function WearablesPage() {
       })
     : "not yet";
 
-  const todayMetrics = metrics?.find((row) => row.source === connected.provider);
+  const glance = await getWearableGlance();
 
   return (
     <div className="space-y-6">
@@ -96,17 +91,7 @@ export default async function WearablesPage() {
         </div>
       ) : null}
 
-      <div className="border-border/60 space-y-2 rounded-lg border px-4 py-4 text-sm">
-        <MetricRow label="Sleep" value={todayMetrics?.sleep_minutes ? `${Math.round(todayMetrics.sleep_minutes / 60)}h` : "—"} />
-        <MetricRow label="Resting HR" value={todayMetrics?.resting_hr ?? "—"} />
-        <MetricRow label="HRV" value={todayMetrics?.hrv_ms ? `${todayMetrics.hrv_ms} ms` : "—"} />
-        <MetricRow label="Steps" value={todayMetrics?.steps ?? "—"} />
-        {!todayMetrics?.hrv_ms ? (
-          <p className="text-muted-foreground pt-2 text-xs">
-            No HRV last night — your watch may not have synced; it&apos;ll fill in.
-          </p>
-        ) : null}
-      </div>
+      {glance ? <WearableGlanceCard glance={glance} /> : null}
 
       <form action={syncWearableNowAction.bind(null, connected.provider as "mock" | "google_health")}>
         <Button type="submit" className="w-full">
@@ -119,15 +104,6 @@ export default async function WearablesPage() {
           Disconnect
         </Button>
       </form>
-    </div>
-  );
-}
-
-function MetricRow({ label, value }: { label: string; value: string | number }) {
-  return (
-    <div className="flex justify-between gap-3">
-      <span className="text-muted-foreground">{label}</span>
-      <span>{value}</span>
     </div>
   );
 }

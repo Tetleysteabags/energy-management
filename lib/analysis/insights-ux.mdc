@@ -1,13 +1,8 @@
----
-description: Insight language and UX tone for the recovery tracker
-globs:
-  - app/**
-  - components/**
-alwaysApply: false
+> **Canonical install:** `.cursor/rules/insights-ux.mdc` (Cursor rule) and `docs/ui-ux-spec.md`.
+> This copy ships with the analysis bundle for handoff.
+
 ---
 # Insight language & UX
-
-Full UI spec: `docs/ui-ux-spec.md`. Visual system: `frontend-design.mdc`.
 
 - Every surfaced insight shows its `n` and a confidence label
   (`insufficient_data` / `possible_association` / `recurring_pattern`). Never

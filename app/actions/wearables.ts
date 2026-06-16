@@ -72,6 +72,7 @@ export async function syncWearableNow(provider: "mock" | "google_health"): Promi
       resting_hr: metrics.restingHr,
       hrv_ms: metrics.hrvMs,
       steps: metrics.steps,
+      active_minutes: metrics.activeMinutes,
       spo2: metrics.spo2,
       skin_temp_c: metrics.skinTempC,
     },

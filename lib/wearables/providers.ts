@@ -19,6 +19,7 @@ export const mockWearableProvider: WearableProvider = {
       restingHr: Math.round(58 + r * 12),
       hrvMs: Math.round(25 + r * 35),
       steps: Math.round(1500 + r * 4000),
+      activeMinutes: Math.round(20 + r * 50),
       spo2: Math.round(95 + r * 4),
       skinTempC: Number((36.2 + r * 0.8).toFixed(1)),
     } satisfies WearableMetricSnapshot;
@@ -35,6 +36,7 @@ export const googleHealthProvider: WearableProvider = {
       restingHr: null,
       hrvMs: null,
       steps: null,
+      activeMinutes: null,
       spo2: null,
       skinTempC: null,
     };

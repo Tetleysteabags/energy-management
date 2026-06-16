@@ -3,6 +3,7 @@ export type WearableMetricSnapshot = {
   restingHr: number | null;
   hrvMs: number | null;
   steps: number | null;
+  activeMinutes: number | null;
   spo2: number | null;
   skinTempC: number | null;
 };
@@ -18,6 +19,7 @@ export const READ_METRICS = [
   "Resting heart rate",
   "HRV",
   "Steps",
+  "Active minutes",
   "SpO₂",
   "Skin temperature",
 ] as const;

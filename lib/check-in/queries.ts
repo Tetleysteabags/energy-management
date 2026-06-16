@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { greetingForHour } from "@/lib/check-in/greeting";
 import { BASELINE_TARGET_DAYS } from "@/lib/check-in/scales";
 import {
   DEFAULT_EVENING,
@@ -43,12 +44,6 @@ export function yesterdayLogDate(fromDate = todayLogDate()): string {
   const date = new Date(`${fromDate}T12:00:00`);
   date.setDate(date.getDate() - 1);
   return date.toISOString().slice(0, 10);
-}
-
-export function greetingForHour(hour = new Date().getHours()): string {
-  if (hour < 12) return "Good morning";
-  if (hour < 17) return "Good afternoon";
-  return "Good evening";
 }
 
 export function dueCheckIn(morningDone: boolean, eveningDone: boolean): DueCheckIn {
@@ -147,10 +142,19 @@ function eveningInitial(todayRow: DailyLogRow | null, yesterdayRow: DailyLogRow 
     return eveningFromRowPartial(todayRow);
   }
   const fromYesterday = rowToEvening(yesterdayRow);
-  if (fromYesterday) {
-    return { ...fromYesterday, notes: "" };
+  const base = fromYesterday ? { ...fromYesterday, notes: "" } : DEFAULT_EVENING;
+
+  if (todayRow) {
+    return {
+      ...base,
+      alcohol: todayRow.alcohol ?? base.alcohol,
+      alcoholUnits: todayRow.alcohol_units ?? base.alcoholUnits,
+      lateCaffeine: todayRow.late_caffeine ?? base.lateCaffeine,
+      lateMeal: todayRow.late_meal ?? base.lateMeal,
+    };
   }
-  return DEFAULT_EVENING;
+
+  return base;
 }
 
 export async function getCheckInContext(logDate = todayLogDate()) {
@@ -241,6 +245,12 @@ export async function getHomeState() {
     yesterdayEvening: rowToEvening(yesterdayRow),
     prefillMorning: morningInitial(todayRow, yesterdayRow),
     prefillEvening: eveningInitial(todayRow, yesterdayRow),
+    todayFactors: {
+      alcohol: todayRow?.alcohol ?? false,
+      alcoholUnits: todayRow?.alcohol_units ?? 0,
+      lateCaffeine: todayRow?.late_caffeine ?? false,
+      lateMeal: todayRow?.late_meal ?? false,
+    },
   };
 }
 

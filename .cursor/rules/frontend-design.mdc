@@ -1,0 +1,37 @@
+---
+description: Frontend design — calm, low-cognitive-load patient UI (full spec in docs/ui-ux-spec.md)
+globs:
+  - app/**
+  - components/**
+  - app/globals.css
+alwaysApply: false
+---
+# Frontend design
+
+**Read `docs/ui-ux-spec.md` before building or changing any patient-facing screen.**
+Tone and insight language: `insights-ux.mdc`.
+
+## North star
+Could someone finish the daily flow in ~15 seconds on a bad fog day without having to think?
+Optimise for low effort and low cognitive load over feature richness.
+
+## Visual system
+- Flat, calm, generous whitespace. White/secondary surfaces, soft borders, rounded-lg cards.
+  No gradients, shadows, or neon.
+- Muted palette; info tint for primary actions; amber for "watch"; gray for "collecting".
+  Red only for genuine errors — never for insights.
+- Mobile-first, single column, tap targets ≥44px. Font weights 400/500 only. Sentence case.
+
+## Layout patterns
+- **Home** is a glance + due action — not a dashboard. Wearable card: row **T**
+  = last night (sleep/RHR/HRV); row **T−1** = yesterday (steps/active). Never mix
+  windows. See `docs/ui-ux-spec.md` § Wearable timing convention.
+- Event durations use **preset chips** (15m–3h), not −/+ steppers.
+- **Progressive disclosure:** 3–4 default fields; rest behind "Show more".
+- **Pre-fill yesterday** on every check-in field; "Same as yesterday" one-tap floor.
+- Insight cards use `patientSummary()` — friendly sentence + pill + `n` + caveat. Never
+  `plainEnglish`, beta, CI, p, or q on patient views (reports only).
+
+## Forbidden
+Streaks, badges, gamification, nagging, guilt for missed days, nudges toward more activity,
+alarm/red insight styling, clinical-cold tone, required long forms.

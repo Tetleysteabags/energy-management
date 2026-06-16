@@ -107,6 +107,50 @@ export async function submitEveningCheckIn({
   return {};
 }
 
+export async function saveDayFactors({
+  logDate,
+  alcohol,
+  alcoholUnits,
+  lateCaffeine,
+  lateMeal,
+}: {
+  logDate: string;
+  alcohol: boolean;
+  alcoholUnits: number;
+  lateCaffeine: boolean;
+  lateMeal: boolean;
+}): Promise<ActionResult> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "You need to be signed in." };
+  }
+
+  const payload = {
+    user_id: user.id,
+    log_date: logDate,
+    alcohol,
+    alcohol_units: alcohol ? Math.min(20, Math.max(0, Math.round(alcoholUnits))) : null,
+    late_caffeine: lateCaffeine,
+    late_meal: lateMeal,
+  };
+
+  const { error } = await supabase.from("daily_logs").upsert(payload, {
+    onConflict: "user_id,log_date",
+  });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/");
+  revalidatePath("/check-in/evening");
+  return {};
+}
+
 export async function signOut() {
   const supabase = await createClient();
   await supabase.auth.signOut();

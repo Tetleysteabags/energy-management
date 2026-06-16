@@ -4,6 +4,7 @@ import type {
   EngineReport,
   Insight,
 } from "./analysis-engine";
+import { patientCaseControlSummary, patientSummary } from "./patient-summary";
 import type { AnalysisOutput, ConfidenceLabel, InsightFinding } from "./types";
 
 function mapLabel(label: ConfirmatoryResult["label"]): ConfidenceLabel | null {
@@ -21,7 +22,7 @@ export function confirmatoryToFinding(result: ConfirmatoryResult): InsightFindin
     id: result.hypothesis.id,
     label,
     n: result.n,
-    sentence: result.plainEnglish,
+    sentence: patientSummary(result.hypothesis, label),
     caveat: "A lead to watch — not proof of cause.",
     predictor: result.hypothesis.predictor,
     outcome: result.hypothesis.outcome,
@@ -47,11 +48,35 @@ function insightToFinding(insight: Insight, report: EngineReport): InsightFindin
     if (mapped) return mapped;
   }
 
+  const label: ConfidenceLabel =
+    insight.kind === "confirmatory" ? "recurring_pattern" : "possible_association";
+
+  if (insight.kind === "case_control") {
+    const signal =
+      report.caseControl.find((row) => row.plainEnglish === insight.text)?.signal ?? insight.title;
+    return {
+      id: insight.title,
+      label: "possible_association",
+      n: report.meta.crashDays,
+      sentence: patientCaseControlSummary(signal.replace(/^Crash precursor: /, "")),
+      caveat: "A lead to watch — not proof of cause.",
+      predictor: signal,
+      outcome: "crash",
+      lagDays: 1,
+      highLabel: "Before crashes",
+      lowLabel: "Usual days",
+      highMean: 0,
+      lowMean: 0,
+    };
+  }
+
   return {
     id: insight.title,
-    label: insight.kind === "confirmatory" ? "recurring_pattern" : "possible_association",
+    label,
     n: match?.n ?? report.meta.observedDays,
-    sentence: insight.text,
+    sentence: match
+      ? patientSummary(match.hypothesis, label)
+      : insight.text.replace(/\(effect [^)]+\)/g, "").replace(/95% CI[^,]+,?\s*/g, "").trim(),
     caveat: "A lead to watch — not proof of cause.",
     predictor: match?.hypothesis.predictor ?? "",
     outcome: match?.hypothesis.outcome ?? "",
