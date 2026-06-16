@@ -21,7 +21,18 @@ Skip `20250615000001_ui_spec_schema.sql` on a fresh project (slice 1 already inc
 
 Under [Authentication → Providers](https://supabase.com/dashboard/project/aruelkzwdqnpbxsqsqjp/auth/providers), ensure **Email** is enabled.
 
-For local dev, you can disable “Confirm email” so signup works instantly.
+Under [Authentication → URL configuration](https://supabase.com/dashboard/project/aruelkzwdqnpbxsqsqjp/auth/url-configuration):
+
+- **Site URL** — production app URL (e.g. `https://your-app.vercel.app`) or `http://localhost:3000` for local dev
+- **Redirect URLs** — add both:
+  - `http://localhost:3000/auth/callback`
+  - `https://your-app.vercel.app/auth/callback`
+
+Set `NEXT_PUBLIC_SITE_URL` in Vercel to the same production URL so confirmation emails use the correct callback.
+
+The app completes email confirmation at `/auth/callback`. If a link says "invalid or expired", use **Resend confirmation email** on the signup or login screen — only the **latest** email's link will work.
+
+For local dev only, you can disable “Confirm email” so signup works instantly.
 
 ## 4. Local app
 

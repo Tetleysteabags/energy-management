@@ -28,11 +28,15 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const { pathname } = request.nextUrl;
-  const isAuthRoute = pathname.startsWith("/login") || pathname.startsWith("/signup");
+  const isAuthRoute =
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/signup") ||
+    pathname.startsWith("/auth/callback");
   const isProtected =
     pathname === "/" ||
     pathname.startsWith("/trends") ||
     pathname.startsWith("/more") ||
+    pathname.startsWith("/help") ||
     pathname.startsWith("/analysis") ||
     pathname.startsWith("/explore") ||
     pathname.startsWith("/events") ||

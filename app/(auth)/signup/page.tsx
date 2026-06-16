@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { getAuthCallbackUrl } from "@/lib/supabase/auth-url";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -16,30 +17,71 @@ export default function SignupPage() {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const [resendPending, setResendPending] = useState(false);
+  const submittingRef = useRef(false);
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
+    if (submittingRef.current || pending) return;
+
     setError(null);
     setMessage(null);
+    submittingRef.current = true;
     setPending(true);
 
+    try {
+      const supabase = createClient();
+      const { data, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: getAuthCallbackUrl(),
+        },
+      });
+
+      if (authError) {
+        setError(authError.message);
+        return;
+      }
+
+      if (data.session) {
+        router.push("/");
+        router.refresh();
+        return;
+      }
+
+      setMessage(
+        "Check your email for a confirmation link. Use the latest email only — older links stop working after a new one is sent.",
+      );
+    } finally {
+      submittingRef.current = false;
+      setPending(false);
+    }
+  }
+
+  async function handleResend() {
+    if (!email || resendPending) return;
+
+    setError(null);
+    setResendPending(true);
+
     const supabase = createClient();
-    const { data, error: authError } = await supabase.auth.signUp({ email, password });
+    const { error: resendError } = await supabase.auth.resend({
+      type: "signup",
+      email,
+      options: {
+        emailRedirectTo: getAuthCallbackUrl(),
+      },
+    });
 
-    setPending(false);
+    setResendPending(false);
 
-    if (authError) {
-      setError(authError.message);
+    if (resendError) {
+      setError(resendError.message);
       return;
     }
 
-    if (data.session) {
-      router.push("/");
-      router.refresh();
-      return;
-    }
-
-    setMessage("Check your email to confirm your account, then sign in.");
+    setMessage("A fresh confirmation email is on its way. Use that link — not an older one.");
   }
 
   return (
@@ -80,9 +122,18 @@ export default function SignupPage() {
               </p>
             ) : null}
             {message ? (
-              <p className="text-muted-foreground text-sm" role="status">
-                {message}
-              </p>
+              <div className="space-y-3" role="status">
+                <p className="text-muted-foreground text-sm">{message}</p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full font-normal"
+                  disabled={resendPending || !email}
+                  onClick={handleResend}
+                >
+                  {resendPending ? "Sending…" : "Resend confirmation email"}
+                </Button>
+              </div>
             ) : null}
             <Button type="submit" className="w-full" disabled={pending}>
               {pending ? "Creating…" : "Create account"}
