@@ -2,29 +2,20 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, LineChart, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const links = [
-  { href: "/", label: "Home", icon: Home },
-  { href: "/trends", label: "Trends", icon: LineChart },
-  { href: "/more", label: "More", icon: MoreHorizontal },
-];
+import { mobileNavLinks } from "@/components/dashboard/nav-links";
 
 export function BottomNav() {
   const pathname = usePathname();
 
   return (
     <nav
-      className="border-border/60 bg-background/95 fixed inset-x-0 bottom-0 z-10 border-t backdrop-blur"
+      className="border-border/60 bg-background/95 fixed inset-x-0 bottom-0 z-10 border-t backdrop-blur md:hidden"
       aria-label="Main"
     >
       <div className="mx-auto grid max-w-lg grid-cols-3 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-1">
-        {links.map(({ href, label, icon: Icon }) => {
-          const active =
-            href === "/"
-              ? pathname === "/" || pathname.startsWith("/check-in")
-              : pathname.startsWith(href);
+        {mobileNavLinks.map(({ href, label, icon: Icon, isActive }) => {
+          const active = isActive(pathname);
 
           return (
             <Link
