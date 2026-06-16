@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { getAuthCallbackUrl } from "@/lib/supabase/auth-url";
+import { formatAuthError } from "@/lib/supabase/auth-errors";
 import { AuthDivider } from "@/components/auth/auth-divider";
 import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
 import { Button } from "@/components/ui/button";
@@ -55,9 +56,11 @@ function LoginForm() {
 
         if (needsConfirmation) {
           setError("Confirm your email first, then sign in.");
-          setInfo("Use the latest confirmation email, or resend a new link below.");
+          setInfo(
+            "Check junk/spam for mail from Supabase. Use the latest link, resend once below, or continue with Google.",
+          );
         } else {
-          setError(authError.message);
+          setError(formatAuthError(authError.message));
         }
         return;
       }
@@ -89,7 +92,7 @@ function LoginForm() {
     setResendPending(false);
 
     if (resendError) {
-      setError(resendError.message);
+      setError(formatAuthError(resendError.message));
       return;
     }
 

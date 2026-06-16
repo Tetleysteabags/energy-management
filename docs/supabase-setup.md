@@ -23,12 +23,12 @@ Under [Authentication → Providers](https://supabase.com/dashboard/project/arue
 
 Under [Authentication → URL configuration](https://supabase.com/dashboard/project/aruelkzwdqnpbxsqsqjp/auth/url-configuration):
 
-- **Site URL** — production app URL (e.g. `https://your-app.vercel.app`) or `http://localhost:3000` for local dev
+- **Site URL** — `https://energy-management-nine.vercel.app` (or `http://localhost:3000` for local dev)
 - **Redirect URLs** — add both:
   - `http://localhost:3000/auth/callback`
-  - `https://your-app.vercel.app/auth/callback`
+  - `https://energy-management-nine.vercel.app/auth/callback`
 
-Set `NEXT_PUBLIC_SITE_URL` in Vercel to the same production URL so confirmation emails use the correct callback.
+Set `NEXT_PUBLIC_SITE_URL=https://energy-management-nine.vercel.app` in Vercel (Project → Settings → Environment Variables) for Production and Preview.
 
 The app completes email confirmation at `/auth/callback`. If a link says "invalid or expired", use **Resend confirmation email** on the signup or login screen — only the **latest** email's link will work.
 
@@ -49,7 +49,7 @@ In [Google Auth Platform → Clients](https://console.cloud.google.com/auth/clie
 - Create an **OAuth client ID** → **Web application**
 - **Authorized JavaScript origins:**
   - `http://localhost:3000`
-  - `https://your-app.vercel.app`
+  - `https://energy-management-nine.vercel.app`
 - **Authorized redirect URIs** (use the Supabase callback URL from step 1):
   - `https://aruelkzwdqnpbxsqsqjp.supabase.co/auth/v1/callback`
 
@@ -60,7 +60,7 @@ Paste the **Client ID** and **Client secret** into the Supabase Google provider 
 Ensure these are in [URL configuration](https://supabase.com/dashboard/project/aruelkzwdqnpbxsqsqjp/auth/url-configuration):
 
 - `http://localhost:3000/auth/callback`
-- `https://your-app.vercel.app/auth/callback`
+- `https://energy-management-nine.vercel.app/auth/callback`
 
 The login and signup screens show **Continue with Google**, which completes sign-in via `/auth/callback`.
 

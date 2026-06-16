@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { getAuthCallbackUrl } from "@/lib/supabase/auth-url";
+import { formatAuthError, isRepeatedSignup } from "@/lib/supabase/auth-errors";
 import { AuthDivider } from "@/components/auth/auth-divider";
 import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
 import { Button } from "@/components/ui/button";
@@ -42,7 +43,7 @@ export default function SignupPage() {
       });
 
       if (authError) {
-        setError(authError.message);
+        setError(formatAuthError(authError.message));
         return;
       }
 
@@ -52,8 +53,15 @@ export default function SignupPage() {
         return;
       }
 
+      if (isRepeatedSignup(data.user)) {
+        setMessage(
+          "This email is already registered. No new confirmation email was sent. Try signing in, resend once below, or use Google.",
+        );
+        return;
+      }
+
       setMessage(
-        "Check your email for a confirmation link. Use the latest email only — older links stop working after a new one is sent.",
+        "Check your email for a confirmation link (including junk/spam). Use the latest email only.",
       );
     } finally {
       submittingRef.current = false;
@@ -79,7 +87,7 @@ export default function SignupPage() {
     setResendPending(false);
 
     if (resendError) {
-      setError(resendError.message);
+      setError(formatAuthError(resendError.message));
       return;
     }
 
