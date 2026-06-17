@@ -59,7 +59,7 @@ function loadHeadsUp(
   if (meetingHigh && meetingOver >= physicalOver) {
     return {
       kind: "load",
-      message: "Today's been meeting-heavy. On days like this, an easy evening tends to help.",
+      message: "Today's been call-heavy. On days like this, an easy evening tends to help.",
     };
   }
   if (physicalHigh) {

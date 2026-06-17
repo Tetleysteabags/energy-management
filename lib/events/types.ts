@@ -2,9 +2,10 @@ export const QUICK_EVENT_TYPES = [
   { type: "rest_break", label: "Rest", icon: "☕" },
   { type: "nap", label: "Nap", icon: "😴" },
   { type: "walk", label: "Walk", icon: "🚶" },
+  { type: "light_activity", label: "Light activity", icon: "🏡" },
   { type: "workout", label: "Workout", icon: "🏋️" },
-  { type: "meeting", label: "Meeting", icon: "💬" },
-  { type: "work", label: "Work", icon: "💻" },
+  { type: "meeting", label: "Calls", icon: "📞" },
+  { type: "work", label: "Cognitive work", icon: "💻" },
   { type: "symptom_flare", label: "Flare", icon: "⚡" },
   { type: "supplement", label: "Supplement", icon: "💊" },
 ] as const;
@@ -32,6 +33,7 @@ export const DEFAULT_EVENT_DURATION: Record<string, number | null> = {
   rest_break: 15,
   nap: 30,
   walk: 30,
+  light_activity: 30,
   workout: 60,
   meeting: 60,
   work: 120,
@@ -41,6 +43,11 @@ export const DEFAULT_EVENT_DURATION: Record<string, number | null> = {
 
 export function eventHasDuration(eventType: string): boolean {
   return !POINT_EVENT_TYPES.has(eventType);
+}
+
+export function eventTypeLabel(eventType: string, fallbackLabel?: string): string {
+  const match = QUICK_EVENT_TYPES.find((item) => item.type === eventType);
+  return match?.label ?? fallbackLabel ?? eventType;
 }
 
 export type EventRow = {
@@ -82,4 +89,32 @@ export function formatEventDuration(minutes: number | null): string {
     return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
   }
   return `${minutes}m`;
+}
+
+export function formatEventTimeRange(occurredAt: string, durationMinutes: number | null): string {
+  const start = formatEventTime(occurredAt);
+  if (durationMinutes == null || durationMinutes <= 0) return start;
+  const end = new Date(new Date(occurredAt).getTime() + durationMinutes * 60_000);
+  return `${start} – ${formatEventTime(end.toISOString())}`;
+}
+
+/** `HH:mm` for a datetime-local style input from an ISO timestamp. */
+export function isoToTimeInputValue(iso: string): string {
+  const date = new Date(iso);
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  return `${hours}:${minutes}`;
+}
+
+/** Build ISO occurred_at from today's date (or event date) + `HH:mm`. */
+export function timeInputToIso(baseIso: string, timeValue: string): string {
+  const [hours, minutes] = timeValue.split(":").map(Number);
+  const date = new Date(baseIso);
+  date.setHours(hours, minutes, 0, 0);
+  return date.toISOString();
+}
+
+export function minutesBetween(startIso: string, endIso: string): number {
+  const diff = new Date(endIso).getTime() - new Date(startIso).getTime();
+  return Math.max(0, Math.round(diff / 60_000));
 }

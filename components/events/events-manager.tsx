@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import {
   addQuickEvent,
   deleteEvent,
-  updateEventDuration,
+  updateEventTimes,
 } from "@/app/actions/events";
 import { EventRowItem } from "@/components/events/event-row-item";
 import { QuickAddBar } from "@/components/events/quick-add-bar";
@@ -73,11 +73,8 @@ export function EventsManager({ events }: EventsManagerProps) {
                     showPresets={durationEditId === event.id}
                     onEditDuration={() => setDurationEditId(event.id)}
                     onClosePresets={() => setDurationEditId(null)}
-                    onDurationSelect={(minutes) =>
-                      refresh(
-                        () => updateEventDuration(event.id, minutes),
-                        () => setDurationEditId(null),
-                      )
+                    onTimesSave={(occurredAt, durationMinutes) =>
+                      refresh(() => updateEventTimes(event.id, occurredAt, durationMinutes))
                     }
                     onRemove={() => refresh(() => deleteEvent(event.id))}
                   />

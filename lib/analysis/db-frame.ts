@@ -21,6 +21,7 @@ export type DbDailyLog = {
   evening_fatigue: number | null;
   evening_brain_fog: number | null;
   evening_pain: number | null;
+  evening_chest_feeling: number | null;
   pem: number | null;
   alcohol: boolean | null;
   alcohol_units: number | null;
@@ -48,14 +49,17 @@ function num(value: number | null | undefined): number | undefined {
 export function dailyLogToSymptomRow(row: DbDailyLog): SymptomRowLike | null {
   if (!row.morning_submitted_at && !row.evening_submitted_at) return null;
 
+  const chestScore =
+    num(row.evening_chest_feeling ?? row.morning_dysautonomia) ?? 0;
+
   return {
     date: row.log_date,
     fatigue_score: num(row.evening_fatigue ?? row.morning_fatigue) ?? 0,
     pem_score: num(row.pem) ?? 0,
-    chest_heaviness_score: num(row.morning_dysautonomia) ?? 0,
+    chest_heaviness_score: chestScore,
     muscle_soreness_score: num(row.evening_pain ?? row.morning_pain) ?? 0,
     brain_fog_score: num(row.evening_brain_fog ?? row.morning_brain_fog) ?? 0,
-    sinus_congestion_score: num(row.morning_dysautonomia) ?? 0,
+    sinus_congestion_score: chestScore,
     subjective_sleep_quality: num(row.sleep_quality) ?? 0,
     overall_capacity_score: num(row.capacity) ?? 0,
     is_excluded: row.is_excluded ? 1 : 0,
@@ -140,6 +144,13 @@ export const UI_TO_ENGINE_FIELD: Record<string, string> = {
   evening_brain_fog: "brain_fog_score",
   capacity: "overall_capacity_score",
   pem: "pem_score",
+  morning_chest_feeling: "chest_heaviness_score",
+  evening_chest_feeling: "chest_heaviness_score",
+  morning_muscle_level: "muscle_soreness_score",
+  evening_muscle_level: "muscle_soreness_score",
+  morning_pain: "muscle_soreness_score",
+  evening_pain: "muscle_soreness_score",
+  morning_dysautonomia: "chest_heaviness_score",
   alcohol: "alcohol_units",
   late_caffeine: "late_caffeine",
   late_meal: "late_meal",

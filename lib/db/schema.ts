@@ -40,6 +40,7 @@ export const dailyLogs = pgTable(
     eveningFatigue: smallint("evening_fatigue"),
     eveningBrainFog: smallint("evening_brain_fog"),
     eveningPain: smallint("evening_pain"),
+    eveningChestFeeling: smallint("evening_chest_feeling"),
     pem: smallint("pem"),
     alcohol: boolean("alcohol").notNull().default(false),
     alcoholUnits: smallint("alcohol_units"),

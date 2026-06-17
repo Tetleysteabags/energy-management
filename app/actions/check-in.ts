@@ -39,8 +39,8 @@ export async function submitMorningCheckIn({
     rested_score: clampSymptom(values.restedScore),
     morning_fatigue: clampSymptom(values.morningFatigue),
     morning_brain_fog: clampSymptom(values.morningBrainFog),
-    morning_pain: clampSymptom(values.morningPain),
-    morning_dysautonomia: clampSymptom(values.morningDysautonomia),
+    morning_pain: clampSymptom(values.morningMuscleLevel),
+    morning_dysautonomia: clampSymptom(values.morningChestFeeling),
     morning_submitted_at: new Date().toISOString(),
   };
 
@@ -82,7 +82,8 @@ export async function submitEveningCheckIn({
     capacity: clampSymptom(values.capacity),
     evening_fatigue: clampSymptom(values.eveningFatigue),
     evening_brain_fog: clampSymptom(values.eveningBrainFog),
-    evening_pain: clampSymptom(values.eveningPain),
+    evening_pain: clampSymptom(values.eveningMuscleLevel),
+    evening_chest_feeling: clampSymptom(values.eveningChestFeeling),
     pem: clampSymptom(values.pem),
     alcohol: values.alcohol,
     alcohol_units: values.alcohol

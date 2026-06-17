@@ -19,6 +19,7 @@ export function SupplementsCard({ logDate, intake: initialIntake }: SupplementsC
   const [showAdd, setShowAdd] = useState(false);
   const [newName, setNewName] = useState("");
   const [pending, startTransition] = useTransition();
+  const [, startUiTransition] = useTransition();
 
   function persist(next: SupplementIntake[]) {
     setIntake(next);
@@ -74,7 +75,7 @@ export function SupplementsCard({ logDate, intake: initialIntake }: SupplementsC
             variant="ghost"
             size="xs"
             className="text-muted-foreground"
-            onClick={() => setShowAdd((value) => !value)}
+            onClick={() => startUiTransition(() => setShowAdd((value) => !value))}
           >
             Add
           </Button>

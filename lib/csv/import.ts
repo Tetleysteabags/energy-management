@@ -17,6 +17,7 @@ const COLUMN_MAP: Record<string, string> = {
   evening_fatigue: "evening_fatigue",
   evening_brain_fog: "evening_brain_fog",
   evening_pain: "evening_pain",
+  evening_chest_feeling: "evening_chest_feeling",
   pem: "pem",
   notes: "notes",
 };

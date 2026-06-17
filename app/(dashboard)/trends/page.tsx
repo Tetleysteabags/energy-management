@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { CapacityHeatmap } from "@/components/trends/capacity-heatmap";
-import { TrendLineCharts } from "@/components/trends/trend-line-charts";
+import { TrendLineChartsLazy } from "@/components/trends/trend-line-charts-lazy";
 import { getTrendData } from "@/lib/trends/queries";
 
 export default async function TrendsPage() {
@@ -21,7 +21,7 @@ export default async function TrendsPage() {
 
       <section className="space-y-4">
         <h2 className="text-sm font-medium">Single metrics</h2>
-        <TrendLineCharts days={data.days} />
+        <TrendLineChartsLazy days={data.days} />
       </section>
     </div>
   );

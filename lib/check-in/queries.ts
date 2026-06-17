@@ -25,6 +25,7 @@ type DailyLogRow = {
   evening_fatigue: number | null;
   evening_brain_fog: number | null;
   evening_pain: number | null;
+  evening_chest_feeling: number | null;
   pem: number | null;
   alcohol: boolean | null;
   alcohol_units: number | null;
@@ -63,9 +64,9 @@ function rowToMorning(row: DailyLogRow | null): MorningCheckInValues | null {
     restedScore: row.rested_score ?? DEFAULT_MORNING.restedScore,
     morningFatigue: row.morning_fatigue ?? DEFAULT_MORNING.morningFatigue,
     morningBrainFog: row.morning_brain_fog ?? DEFAULT_MORNING.morningBrainFog,
-    morningPain: row.morning_pain ?? DEFAULT_MORNING.morningPain,
-    morningDysautonomia:
-      row.morning_dysautonomia ?? DEFAULT_MORNING.morningDysautonomia,
+    morningMuscleLevel: row.morning_pain ?? DEFAULT_MORNING.morningMuscleLevel,
+    morningChestFeeling:
+      row.morning_dysautonomia ?? DEFAULT_MORNING.morningChestFeeling,
   };
 }
 
@@ -81,7 +82,9 @@ function rowToEvening(row: DailyLogRow | null): EveningCheckInValues | null {
     capacity: row.capacity ?? DEFAULT_EVENING.capacity,
     eveningFatigue: row.evening_fatigue ?? DEFAULT_EVENING.eveningFatigue,
     eveningBrainFog: row.evening_brain_fog ?? DEFAULT_EVENING.eveningBrainFog,
-    eveningPain: row.evening_pain ?? DEFAULT_EVENING.eveningPain,
+    eveningMuscleLevel: row.evening_pain ?? DEFAULT_EVENING.eveningMuscleLevel,
+    eveningChestFeeling:
+      row.evening_chest_feeling ?? DEFAULT_EVENING.eveningChestFeeling,
     pem: row.pem ?? DEFAULT_EVENING.pem,
     alcohol: row.alcohol ?? false,
     alcoholUnits: row.alcohol_units ?? 0,
@@ -102,9 +105,9 @@ function morningFromRowPartial(row: DailyLogRow | null): MorningCheckInValues {
     restedScore: row.rested_score ?? DEFAULT_MORNING.restedScore,
     morningFatigue: row.morning_fatigue ?? DEFAULT_MORNING.morningFatigue,
     morningBrainFog: row.morning_brain_fog ?? DEFAULT_MORNING.morningBrainFog,
-    morningPain: row.morning_pain ?? DEFAULT_MORNING.morningPain,
-    morningDysautonomia:
-      row.morning_dysautonomia ?? DEFAULT_MORNING.morningDysautonomia,
+    morningMuscleLevel: row.morning_pain ?? DEFAULT_MORNING.morningMuscleLevel,
+    morningChestFeeling:
+      row.morning_dysautonomia ?? DEFAULT_MORNING.morningChestFeeling,
   };
 }
 
@@ -120,7 +123,9 @@ function eveningFromRowPartial(row: DailyLogRow | null): EveningCheckInValues {
     capacity: row.capacity ?? DEFAULT_EVENING.capacity,
     eveningFatigue: row.evening_fatigue ?? DEFAULT_EVENING.eveningFatigue,
     eveningBrainFog: row.evening_brain_fog ?? DEFAULT_EVENING.eveningBrainFog,
-    eveningPain: row.evening_pain ?? DEFAULT_EVENING.eveningPain,
+    eveningMuscleLevel: row.evening_pain ?? DEFAULT_EVENING.eveningMuscleLevel,
+    eveningChestFeeling:
+      row.evening_chest_feeling ?? DEFAULT_EVENING.eveningChestFeeling,
     pem: row.pem ?? DEFAULT_EVENING.pem,
     alcohol: row.alcohol ?? false,
     alcoholUnits: row.alcohol_units ?? 0,

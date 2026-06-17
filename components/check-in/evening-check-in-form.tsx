@@ -12,7 +12,7 @@ import { SliderField } from "@/components/check-in/slider-field";
 import { ToggleChip } from "@/components/check-in/toggle-chip";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { capacityWord, symptomWord } from "@/lib/check-in/scales";
+import { capacityWord, chestWord, muscleWord, symptomWord } from "@/lib/check-in/scales";
 import type { EveningCheckInValues } from "@/lib/check-in/types";
 import type { SupplementIntake } from "@/lib/supplements/queries";
 
@@ -35,6 +35,7 @@ export function EveningCheckInForm({
 }: EveningCheckInFormProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
+  const [, startUiTransition] = useTransition();
   const [values, setValues] = useState<EveningCheckInValues>(initialValues);
   const [supplementIntake, setSupplementIntake] = useState(initialSupplementIntake);
   const [showMore, setShowMore] = useState(false);
@@ -148,12 +149,20 @@ export function EveningCheckInForm({
               yesterdayValue={hintValues?.eveningBrainFog}
             />
             <SliderField
-              id="evening-pain"
-              label="Pain"
-              value={values.eveningPain}
-              onChange={(eveningPain) => patch({ eveningPain })}
-              wordLabel={symptomWord(values.eveningPain)}
-              yesterdayValue={hintValues?.eveningPain}
+              id="evening-chest-feeling"
+              label="Chest feeling"
+              value={values.eveningChestFeeling}
+              onChange={(eveningChestFeeling) => patch({ eveningChestFeeling })}
+              wordLabel={chestWord(values.eveningChestFeeling)}
+              yesterdayValue={hintValues?.eveningChestFeeling}
+            />
+            <SliderField
+              id="evening-muscle-level"
+              label="Muscle level"
+              value={values.eveningMuscleLevel}
+              onChange={(eveningMuscleLevel) => patch({ eveningMuscleLevel })}
+              wordLabel={muscleWord(values.eveningMuscleLevel)}
+              yesterdayValue={hintValues?.eveningMuscleLevel}
             />
             <SliderField
               id="pem"
@@ -226,7 +235,7 @@ export function EveningCheckInForm({
             type="button"
             variant="ghost"
             className="text-muted-foreground h-auto w-full gap-1 py-2 text-sm font-normal"
-            onClick={() => setShowMore(true)}
+            onClick={() => startUiTransition(() => setShowMore(true))}
           >
             Show more
             <ChevronDown className="size-4" />
@@ -255,7 +264,7 @@ export function EveningCheckInForm({
             type="button"
             variant="ghost"
             className="text-muted-foreground h-auto px-0 py-1 text-sm font-normal"
-            onClick={() => setShowNotes(true)}
+            onClick={() => startUiTransition(() => setShowNotes(true))}
           >
             Add a note (optional)
           </Button>

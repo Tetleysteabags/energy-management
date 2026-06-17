@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import {
   addQuickEvent,
   deleteEvent,
-  updateEventDuration,
+  updateEventTimes,
 } from "@/app/actions/events";
 import { EventRowItem } from "@/components/events/event-row-item";
 import { QuickAddBar } from "@/components/events/quick-add-bar";
@@ -23,6 +23,7 @@ type TodayEventsCardProps = {
 export function TodayEventsCard({ events }: TodayEventsCardProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
+  const [, startUiTransition] = useTransition();
   const [durationEditId, setDurationEditId] = useState<string | null>(null);
 
   function refresh(action: () => Promise<unknown>, onDone?: () => void) {
@@ -66,13 +67,10 @@ export function TodayEventsCard({ events }: TodayEventsCardProps) {
               event={event}
               disabled={pending}
               showPresets={durationEditId === event.id}
-              onEditDuration={() => setDurationEditId(event.id)}
-              onClosePresets={() => setDurationEditId(null)}
-              onDurationSelect={(minutes) =>
-                refresh(
-                  () => updateEventDuration(event.id, minutes),
-                  () => setDurationEditId(null),
-                )
+              onEditDuration={() => startUiTransition(() => setDurationEditId(event.id))}
+              onClosePresets={() => startUiTransition(() => setDurationEditId(null))}
+              onTimesSave={(occurredAt, durationMinutes) =>
+                refresh(() => updateEventTimes(event.id, occurredAt, durationMinutes))
               }
               onRemove={() => refresh(() => deleteEvent(event.id))}
             />

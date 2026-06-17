@@ -1,11 +1,11 @@
 "use client";
 
-import { DurationPresetPicker } from "@/components/events/duration-preset-picker";
+import { EventTimeEditor } from "@/components/events/event-time-editor";
 import {
-  DEFAULT_EVENT_DURATION,
   eventHasDuration,
   formatEventDuration,
   formatEventTime,
+  formatEventTimeRange,
   QUICK_EVENT_TYPES,
   type EventRow,
 } from "@/lib/events/types";
@@ -18,7 +18,7 @@ export function EventRowItem({
   showTime = true,
   onEditDuration,
   onClosePresets,
-  onDurationSelect,
+  onTimesSave,
   onRemove,
 }: {
   event: EventRow;
@@ -28,7 +28,7 @@ export function EventRowItem({
   showTime?: boolean;
   onEditDuration: () => void;
   onClosePresets: () => void;
-  onDurationSelect: (minutes: number) => void;
+  onTimesSave: (occurredAt: string, durationMinutes: number | null) => void;
   onRemove: () => void;
 }) {
   const icon =
@@ -58,7 +58,9 @@ export function EventRowItem({
           </p>
           {showTime ? (
             <p className="text-muted-foreground text-xs" suppressHydrationWarning>
-              {formatEventTime(event.occurred_at)}
+              {hasDuration
+                ? formatEventTimeRange(event.occurred_at, minutes)
+                : formatEventTime(event.occurred_at)}
             </p>
           ) : null}
           {event.note ? (
@@ -80,11 +82,7 @@ export function EventRowItem({
 
       {hasDuration && showPresets ? (
         <>
-          <DurationPresetPicker
-            value={minutes ?? DEFAULT_EVENT_DURATION[event.event_type] ?? null}
-            disabled={disabled}
-            onSelect={onDurationSelect}
-          />
+          <EventTimeEditor event={event} disabled={disabled} onSave={onTimesSave} />
           <Button
             type="button"
             variant="ghost"

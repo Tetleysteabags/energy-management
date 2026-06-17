@@ -10,7 +10,7 @@ import { SliderField } from "@/components/check-in/slider-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { capacityWord, sleepWord, symptomWord } from "@/lib/check-in/scales";
+import { capacityWord, chestWord, muscleWord, sleepWord, symptomWord } from "@/lib/check-in/scales";
 import type { MorningCheckInValues } from "@/lib/check-in/types";
 
 type MorningCheckInFormProps = {
@@ -30,6 +30,7 @@ export function MorningCheckInForm({
 }: MorningCheckInFormProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
+  const [, startUiTransition] = useTransition();
   const [values, setValues] = useState<MorningCheckInValues>(initialValues);
   const [showMore, setShowMore] = useState(false);
   const [logged, setLogged] = useState(false);
@@ -118,20 +119,20 @@ export function MorningCheckInForm({
         {showMore ? (
           <div className="border-border/60 space-y-6 border-t pt-6">
             <SliderField
-              id="morning-pain"
-              label="Pain"
-              value={values.morningPain}
-              onChange={(morningPain) => patch({ morningPain })}
-              wordLabel={symptomWord(values.morningPain)}
-              yesterdayValue={hintValues?.morningPain}
+              id="morning-chest-feeling"
+              label="Chest feeling"
+              value={values.morningChestFeeling}
+              onChange={(morningChestFeeling) => patch({ morningChestFeeling })}
+              wordLabel={chestWord(values.morningChestFeeling)}
+              yesterdayValue={hintValues?.morningChestFeeling}
             />
             <SliderField
-              id="morning-dysautonomia"
-              label="Dysautonomia"
-              value={values.morningDysautonomia}
-              onChange={(morningDysautonomia) => patch({ morningDysautonomia })}
-              wordLabel={symptomWord(values.morningDysautonomia)}
-              yesterdayValue={hintValues?.morningDysautonomia}
+              id="morning-muscle-level"
+              label="Muscle level"
+              value={values.morningMuscleLevel}
+              onChange={(morningMuscleLevel) => patch({ morningMuscleLevel })}
+              wordLabel={muscleWord(values.morningMuscleLevel)}
+              yesterdayValue={hintValues?.morningMuscleLevel}
             />
             <div className="space-y-2">
               <Label htmlFor="sleep-hours">Hours slept (optional)</Label>
@@ -156,7 +157,7 @@ export function MorningCheckInForm({
             type="button"
             variant="ghost"
             className="text-muted-foreground h-auto w-full gap-1 py-2 text-sm font-normal"
-            onClick={() => setShowMore(true)}
+            onClick={() => startUiTransition(() => setShowMore(true))}
           >
             Show more
             <ChevronDown className="size-4" />

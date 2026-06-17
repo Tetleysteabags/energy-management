@@ -23,6 +23,7 @@ export type DemoDailyLogInsert = {
   evening_fatigue: number;
   evening_brain_fog: number;
   evening_pain: number;
+  evening_chest_feeling: number;
   pem: number;
   alcohol: boolean;
   alcohol_units: number;
@@ -118,6 +119,10 @@ function symptomToLog(
     evening_fatigue: symptom.fatigue_score,
     evening_brain_fog: symptom.brain_fog_score,
     evening_pain: symptom.muscle_soreness_score,
+    evening_chest_feeling: Math.max(
+      symptom.chest_heaviness_score,
+      symptom.sinus_congestion_score,
+    ),
     pem: symptom.pem_score,
     alcohol: load.alcohol,
     alcohol_units: Math.round(load.alcohol_units),

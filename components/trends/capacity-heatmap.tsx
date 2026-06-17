@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { memo, useMemo, useState, useTransition } from "react";
 import { capacityColor, formatDaySummary } from "@/lib/trends/capacity";
 import type { TrendDay } from "@/lib/trends/queries";
 import { cn } from "@/lib/utils";
@@ -19,7 +19,35 @@ function startOfWeek(date: Date): Date {
   return result;
 }
 
+const HeatmapCell = memo(function HeatmapCell({
+  day,
+  selected,
+  onSelect,
+}: {
+  day: TrendDay;
+  selected: boolean;
+  onSelect: (day: TrendDay) => void;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={`${day.logDate}, capacity ${day.capacity ?? "no entry"}`}
+      onClick={() => onSelect(day)}
+      className={cn(
+        "relative aspect-square rounded-md border border-transparent transition-opacity",
+        selected && "ring-1 ring-info/40",
+      )}
+      style={{ backgroundColor: capacityColor(day.capacity) }}
+    >
+      {day.isCrash ? (
+        <span className="bg-foreground/70 absolute top-1 right-1 size-1.5 rounded-full" />
+      ) : null}
+    </button>
+  );
+});
+
 export function CapacityHeatmap({ days }: CapacityHeatmapProps) {
+  const [, startTransition] = useTransition();
   const [selected, setSelected] = useState<TrendDay | null>(null);
 
   const weeks = useMemo(() => {
@@ -49,6 +77,12 @@ export function CapacityHeatmap({ days }: CapacityHeatmapProps) {
     return weeksOut;
   }, [days]);
 
+  function selectDay(day: TrendDay) {
+    startTransition(() => {
+      setSelected(day);
+    });
+  }
+
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-7 gap-1.5">
@@ -74,21 +108,12 @@ export function CapacityHeatmap({ days }: CapacityHeatmapProps) {
               }
 
               return (
-                <button
+                <HeatmapCell
                   key={day.logDate}
-                  type="button"
-                  aria-label={`${day.logDate}, capacity ${day.capacity ?? "no entry"}`}
-                  onClick={() => setSelected(day)}
-                  className={cn(
-                    "relative aspect-square rounded-md border border-transparent transition-opacity",
-                    selected?.logDate === day.logDate && "ring-1 ring-info/40",
-                  )}
-                  style={{ backgroundColor: capacityColor(day.capacity) }}
-                >
-                  {day.isCrash ? (
-                    <span className="bg-foreground/70 absolute top-1 right-1 size-1.5 rounded-full" />
-                  ) : null}
-                </button>
+                  day={day}
+                  selected={selected?.logDate === day.logDate}
+                  onSelect={selectDay}
+                />
               );
             })}
           </div>

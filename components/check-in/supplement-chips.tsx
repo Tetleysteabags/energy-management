@@ -16,6 +16,7 @@ export function SupplementChips({ intake, onChange }: SupplementChipsProps) {
   const [showAdd, setShowAdd] = useState(false);
   const [newName, setNewName] = useState("");
   const [pending, startTransition] = useTransition();
+  const [, startUiTransition] = useTransition();
 
   function toggle(supplementId: string) {
     onChange(
@@ -44,7 +45,7 @@ export function SupplementChips({ intake, onChange }: SupplementChipsProps) {
           type="button"
           variant="ghost"
           className="h-auto px-0 text-sm font-normal"
-          onClick={() => setShowAdd(true)}
+          onClick={() => startUiTransition(() => setShowAdd(true))}
         >
           Add one
         </Button>
@@ -76,7 +77,7 @@ export function SupplementChips({ intake, onChange }: SupplementChipsProps) {
           type="button"
           variant="outline"
           className="min-h-11 font-normal"
-          onClick={() => setShowAdd((value) => !value)}
+          onClick={() => startUiTransition(() => setShowAdd((value) => !value))}
         >
           Add
         </Button>

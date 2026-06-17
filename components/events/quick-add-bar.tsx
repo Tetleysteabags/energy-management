@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { WORKOUT_SUBTYPES, WORKOUT_TYPE } from "@/lib/events/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,17 +19,22 @@ export function QuickAddBar({ eventTypes, disabled, compact, onAdd }: QuickAddBa
   const [workoutOpen, setWorkoutOpen] = useState(false);
   const [otherOpen, setOtherOpen] = useState(false);
   const [customText, setCustomText] = useState("");
+  const [, startTransition] = useTransition();
 
   function close() {
-    setWorkoutOpen(false);
-    setOtherOpen(false);
-    setCustomText("");
+    startTransition(() => {
+      setWorkoutOpen(false);
+      setOtherOpen(false);
+      setCustomText("");
+    });
   }
 
   function handleChip(type: string, label: string) {
     if (type === WORKOUT_TYPE) {
-      setOtherOpen(false);
-      setWorkoutOpen((open) => !open);
+      startTransition(() => {
+        setOtherOpen(false);
+        setWorkoutOpen((open) => !open);
+      });
       return;
     }
     onAdd(type, label);
@@ -87,7 +92,7 @@ export function QuickAddBar({ eventTypes, disabled, compact, onAdd }: QuickAddBa
               size="sm"
               className="min-h-9 font-normal"
               disabled={disabled}
-              onClick={() => setOtherOpen((open) => !open)}
+              onClick={() => startTransition(() => setOtherOpen((open) => !open))}
             >
               Other
             </Button>

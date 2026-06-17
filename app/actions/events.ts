@@ -14,9 +14,11 @@ function revalidateEventPaths(): void {
 export async function addQuickEvent({
   eventType,
   label,
+  occurredAt,
 }: {
   eventType: string;
   label: string;
+  occurredAt?: string;
 }): Promise<ActionResult> {
   const supabase = await createClient();
   const {
@@ -31,7 +33,7 @@ export async function addQuickEvent({
       user_id: user.id,
       event_type: eventType,
       label,
-      occurred_at: new Date().toISOString(),
+      occurred_at: occurredAt ?? new Date().toISOString(),
       duration_minutes: DEFAULT_EVENT_DURATION[eventType] ?? null,
     })
     .select("id")
@@ -41,6 +43,33 @@ export async function addQuickEvent({
 
   revalidateEventPaths();
   return { id: data.id };
+}
+
+export async function updateEventTimes(
+  eventId: string,
+  occurredAt: string,
+  durationMinutes: number | null,
+): Promise<ActionResult> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return { error: "You need to be signed in." };
+
+  const { error } = await supabase
+    .from("events")
+    .update({
+      occurred_at: occurredAt,
+      duration_minutes: durationMinutes,
+    })
+    .eq("id", eventId)
+    .eq("user_id", user.id);
+
+  if (error) return { error: error.message };
+
+  revalidateEventPaths();
+  return {};
 }
 
 export async function updateEventDuration(

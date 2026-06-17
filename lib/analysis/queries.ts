@@ -1,8 +1,9 @@
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { runAnalysisFromDb } from "@/lib/analysis/run-analysis";
 import type { AnalysisOutput } from "@/lib/analysis/types";
 
-export async function getAnalysisOutput(): Promise<AnalysisOutput | null> {
+export const getAnalysisOutput = cache(async (): Promise<AnalysisOutput | null> => {
   const supabase = await createClient();
   const {
     data: { user },
@@ -23,4 +24,4 @@ export async function getAnalysisOutput(): Promise<AnalysisOutput | null> {
     .order("log_date", { ascending: true });
 
   return runAnalysisFromDb(rows ?? [], wearables ?? []);
-}
+});

@@ -26,6 +26,26 @@ export function sleepWord(value: number): string {
   return "great";
 }
 
+/** Chest: high = tight or heaviness */
+export function chestWord(value: number): string {
+  if (value <= 0) return "clear";
+  if (value <= 2) return "barely noticeable";
+  if (value <= 4) return "mild tightness";
+  if (value <= 6) return "moderate heaviness";
+  if (value <= 8) return "quite tight";
+  return "very heavy";
+}
+
+/** Muscle: high = ache or heaviness */
+export function muscleWord(value: number): string {
+  if (value <= 0) return "none";
+  if (value <= 2) return "minimal";
+  if (value <= 4) return "mild ache";
+  if (value <= 6) return "moderate";
+  if (value <= 8) return "achy";
+  return "severe";
+}
+
 export const LOAD_OPTIONS = [
   { value: 0, label: "None" },
   { value: 1, label: "Light" },

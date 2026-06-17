@@ -6,8 +6,10 @@ export type MorningCheckInValues = {
   restedScore: number;
   morningFatigue: number;
   morningBrainFog: number;
-  morningPain: number;
-  morningDysautonomia: number;
+  /** Stored as morning_pain */
+  morningMuscleLevel: number;
+  /** Stored as morning_dysautonomia */
+  morningChestFeeling: number;
 };
 
 export type EveningCheckInValues = {
@@ -17,7 +19,10 @@ export type EveningCheckInValues = {
   capacity: number;
   eveningFatigue: number;
   eveningBrainFog: number;
-  eveningPain: number;
+  /** Stored as evening_pain */
+  eveningMuscleLevel: number;
+  /** Stored as evening_chest_feeling */
+  eveningChestFeeling: number;
   pem: number;
   alcohol: boolean;
   alcoholUnits: number;
@@ -32,8 +37,8 @@ export const DEFAULT_MORNING: MorningCheckInValues = {
   restedScore: 5,
   morningFatigue: 4,
   morningBrainFog: 4,
-  morningPain: 2,
-  morningDysautonomia: 2,
+  morningMuscleLevel: 2,
+  morningChestFeeling: 2,
 };
 
 export const DEFAULT_EVENING: EveningCheckInValues = {
@@ -43,7 +48,8 @@ export const DEFAULT_EVENING: EveningCheckInValues = {
   capacity: 5,
   eveningFatigue: 4,
   eveningBrainFog: 4,
-  eveningPain: 2,
+  eveningMuscleLevel: 2,
+  eveningChestFeeling: 2,
   pem: 2,
   alcohol: false,
   alcoholUnits: 0,
