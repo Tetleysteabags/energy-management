@@ -1,11 +1,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   fetchActiveMinutesForDay,
-  fetchHrvForDay,
-  fetchRespiratoryRateForDay,
-  fetchRestingHrForDay,
+  fetchOvernightHrv,
+  fetchOvernightRespiratoryRate,
+  fetchOvernightRestingHr,
+  fetchOvernightSpo2,
   fetchSleepForWakeDate,
-  fetchSpo2ForDay,
   fetchStepsForDay,
 } from "./api";
 import { refreshGoogleHealthTokens } from "./oauth";
@@ -115,19 +115,19 @@ async function fetchDayMetrics(
         warnings.push(error instanceof Error ? error.message : "Sleep fetch failed");
         return { sleepMinutes: null, sleepWakeMinutes: null, sleepEfficiency: null };
       }),
-      fetchRestingHrForDay(accessToken, logDate).catch((error) => {
+      fetchOvernightRestingHr(accessToken, logDate).catch((error) => {
         warnings.push(error instanceof Error ? error.message : "Resting HR fetch failed");
         return null;
       }),
-      fetchHrvForDay(accessToken, logDate).catch((error) => {
+      fetchOvernightHrv(accessToken, logDate).catch((error) => {
         warnings.push(error instanceof Error ? error.message : "HRV fetch failed");
         return null;
       }),
-      fetchSpo2ForDay(accessToken, logDate).catch((error) => {
+      fetchOvernightSpo2(accessToken, logDate).catch((error) => {
         warnings.push(error instanceof Error ? error.message : "SpO₂ fetch failed");
         return null;
       }),
-      fetchRespiratoryRateForDay(accessToken, logDate).catch((error) => {
+      fetchOvernightRespiratoryRate(accessToken, logDate).catch((error) => {
         warnings.push(error instanceof Error ? error.message : "Respiratory rate fetch failed");
         return null;
       }),
