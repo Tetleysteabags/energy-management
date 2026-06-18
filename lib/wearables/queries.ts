@@ -5,8 +5,11 @@ export type WearableGlance = {
   lastNightDate: string;
   yesterdayDate: string;
   sleepMinutes: number | null;
+  sleepEfficiency: number | null;
   restingHr: number | null;
   hrvMs: number | null;
+  spo2: number | null;
+  respiratoryRate: number | null;
   steps: number | null;
   activeMinutes: number | null;
   note: string | null;
@@ -62,7 +65,9 @@ export async function getWearableGlance(
   const [{ data: lastNightRow }, { data: yesterdayRow }] = await Promise.all([
     supabase
       .from("wearable_daily_metrics")
-      .select("log_date, sleep_minutes, resting_hr, hrv_ms")
+      .select(
+        "log_date, sleep_minutes, sleep_efficiency, resting_hr, hrv_ms, spo2, respiratory_rate",
+      )
       .eq("user_id", user.id)
       .eq("log_date", today)
       .order("created_at", { ascending: false })
@@ -99,8 +104,11 @@ export async function getWearableGlance(
       lastNightDate: today,
       yesterdayDate: yesterday,
       sleepMinutes: null,
+      sleepEfficiency: null,
       restingHr: null,
       hrvMs: null,
+      spo2: null,
+      respiratoryRate: null,
       steps: null,
       activeMinutes: null,
       note: "Wearable data hasn't synced yet.",
@@ -111,8 +119,13 @@ export async function getWearableGlance(
     lastNightDate: today,
     yesterdayDate: yesterday,
     sleepMinutes: lastNightRow?.sleep_minutes ?? null,
+    sleepEfficiency:
+      lastNightRow?.sleep_efficiency != null ? Number(lastNightRow.sleep_efficiency) : null,
     restingHr: lastNightRow?.resting_hr ?? null,
     hrvMs: lastNightRow?.hrv_ms ?? null,
+    spo2: lastNightRow?.spo2 ?? null,
+    respiratoryRate:
+      lastNightRow?.respiratory_rate != null ? Number(lastNightRow.respiratory_rate) : null,
     steps: yesterdayRow?.steps ?? null,
     activeMinutes: yesterdayRow?.active_minutes ?? null,
     note: lastNightRow ? buildNote(lastNightRow, recentSleep) : null,

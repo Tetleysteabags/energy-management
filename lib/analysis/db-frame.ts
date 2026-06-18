@@ -35,10 +35,14 @@ export type DbDailyLog = {
 export type DbWearableMetric = {
   log_date: string;
   sleep_minutes: number | null;
+  sleep_wake_minutes?: number | null;
+  sleep_efficiency?: number | string | null;
   resting_hr: number | null;
   hrv_ms: number | null;
   steps: number | null;
+  active_minutes?: number | null;
   spo2: number | null;
+  respiratory_rate?: number | string | null;
   skin_temp_c: string | null;
 };
 
@@ -95,22 +99,27 @@ export function wearableMetricToRow(row: DbWearableMetric): WearableRowLike | nu
     row.sleep_minutes != null ||
     row.resting_hr != null ||
     row.hrv_ms != null ||
-    row.steps != null;
+    row.steps != null ||
+    row.active_minutes != null ||
+    row.spo2 != null ||
+    row.respiratory_rate != null;
 
   if (!hasData) return null;
+
+  const sleepEfficiency = row.sleep_efficiency != null ? Number(row.sleep_efficiency) : null;
 
   return {
     date: row.log_date,
     total_sleep_minutes: num(row.sleep_minutes) ?? 0,
-    wake_minutes: 0,
-    sleep_efficiency: 0.85,
+    wake_minutes: num(row.sleep_wake_minutes) ?? 0,
+    sleep_efficiency: sleepEfficiency ?? 0.85,
     resting_hr: num(row.resting_hr) ?? 0,
     hrv_rmssd: num(row.hrv_ms) ?? 0,
-    respiratory_rate: 0,
+    respiratory_rate: row.respiratory_rate != null ? Number(row.respiratory_rate) : 0,
     spo2: num(row.spo2) ?? 0,
     temperature_deviation: row.skin_temp_c ? Number.parseFloat(row.skin_temp_c) : 0,
     steps: num(row.steps) ?? 0,
-    active_minutes: 0,
+    active_minutes: num(row.active_minutes) ?? 0,
     sedentary_minutes: 0,
   };
 }

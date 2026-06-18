@@ -23,7 +23,7 @@ const ERROR_MESSAGES: Record<string, string> = {
 };
 
 type WearablesPageProps = {
-  searchParams: Promise<{ error?: string; connected?: string }>;
+  searchParams: Promise<{ error?: string; connected?: string; synced?: string; sync_error?: string }>;
 };
 
 export default async function WearablesPage({ searchParams }: WearablesPageProps) {
@@ -49,8 +49,9 @@ export default async function WearablesPage({ searchParams }: WearablesPageProps
 
   const showDevMock = process.env.NODE_ENV === "development";
   const googleConfigured = isGoogleHealthConfigured();
-  const banner = params.error ? ERROR_MESSAGES[params.error] : null;
+  const banner = params.error ? ERROR_MESSAGES[params.error] : params.sync_error ?? null;
   const justConnected = params.connected === "1";
+  const justSynced = params.synced === "1";
 
   if (!connected) {
     return (
@@ -132,6 +133,17 @@ export default async function WearablesPage({ searchParams }: WearablesPageProps
           Connected. If numbers are blank, your watch may need another sync after data appears in
           Google Health.
         </div>
+      ) : null}
+
+      {justSynced ? (
+        <div className="border-border/60 rounded-lg border px-4 py-3 text-sm">
+          Sync complete. If numbers are still blank, open the Fitbit app so your watch can sync to
+          Google Health first.
+        </div>
+      ) : null}
+
+      {banner ? (
+        <div className="border-border/60 rounded-lg border px-4 py-3 text-sm">{banner}</div>
       ) : null}
 
       {connected.status === "stale" ? (

@@ -2,7 +2,9 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { exchangeGoogleHealthCode } from "@/lib/wearables/google-health/oauth";
 import { encryptTokenPayload } from "@/lib/wearables/token-crypto";
-import { syncGoogleHealthMetrics } from "@/lib/wearables/google-health/sync";
+import { syncGoogleHealthGlance } from "@/lib/wearables/google-health/sync";
+import { yesterdayLogDate } from "@/lib/check-in/queries";
+import { wearableSnapshotToDbRow } from "@/lib/wearables/types";
 
 const STATE_COOKIE = "gh_oauth_state";
 
@@ -73,24 +75,23 @@ export async function GET(request: NextRequest) {
     }
 
     const logDate = new Date().toISOString().slice(0, 10);
-    const sync = await syncGoogleHealthMetrics(supabase, user.id, logDate);
+    const yesterday = yesterdayLogDate(logDate);
+    const sync = await syncGoogleHealthGlance(supabase, user.id, logDate, yesterday);
 
     if (!sync.error) {
-      await supabase.from("wearable_daily_metrics").upsert(
-        {
-          user_id: user.id,
-          log_date: logDate,
-          source: "google_health",
-          sleep_minutes: sync.metrics.sleepMinutes,
-          resting_hr: sync.metrics.restingHr,
-          hrv_ms: sync.metrics.hrvMs,
-          steps: sync.metrics.steps,
-          active_minutes: sync.metrics.activeMinutes,
-          spo2: sync.metrics.spo2,
-          skin_temp_c: sync.metrics.skinTempC,
-        },
-        { onConflict: "user_id,log_date,source" },
-      );
+      await supabase
+        .from("wearable_daily_metrics")
+        .upsert(
+          wearableSnapshotToDbRow(user.id, logDate, "google_health", sync.today.metrics),
+          { onConflict: "user_id,log_date,source" },
+        );
+
+      await supabase
+        .from("wearable_daily_metrics")
+        .upsert(
+          wearableSnapshotToDbRow(user.id, yesterday, "google_health", sync.yesterday.metrics),
+          { onConflict: "user_id,log_date,source" },
+        );
 
       await supabase
         .from("wearable_connections")

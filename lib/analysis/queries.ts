@@ -19,7 +19,9 @@ export const getAnalysisOutput = cache(async (): Promise<AnalysisOutput | null> 
 
   const { data: wearables } = await supabase
     .from("wearable_daily_metrics")
-    .select("log_date, sleep_minutes, resting_hr, hrv_ms, steps, spo2, skin_temp_c")
+    .select(
+      "log_date, sleep_minutes, sleep_wake_minutes, sleep_efficiency, resting_hr, hrv_ms, steps, active_minutes, spo2, respiratory_rate, skin_temp_c",
+    )
     .eq("user_id", user.id)
     .order("log_date", { ascending: true });
 

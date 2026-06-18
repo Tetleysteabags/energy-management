@@ -1,11 +1,10 @@
 "use client";
 
 import { EventTimeEditor } from "@/components/events/event-time-editor";
+import { LocalTime, LocalTimeRange } from "@/components/ui/local-time";
 import {
   eventHasDuration,
   formatEventDuration,
-  formatEventTime,
-  formatEventTimeRange,
   QUICK_EVENT_TYPES,
   type EventRow,
 } from "@/lib/events/types";
@@ -57,10 +56,12 @@ export function EventRowItem({
             ) : null}
           </p>
           {showTime ? (
-            <p className="text-muted-foreground text-xs" suppressHydrationWarning>
-              {hasDuration
-                ? formatEventTimeRange(event.occurred_at, minutes)
-                : formatEventTime(event.occurred_at)}
+            <p className="text-muted-foreground text-xs">
+              {hasDuration ? (
+                <LocalTimeRange occurredAt={event.occurred_at} durationMinutes={minutes} />
+              ) : (
+                <LocalTime iso={event.occurred_at} />
+              )}
             </p>
           ) : null}
           {event.note ? (

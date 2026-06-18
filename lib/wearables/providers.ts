@@ -1,4 +1,5 @@
 import type { WearableMetricSnapshot, WearableProvider } from "./types";
+import { emptyWearableSnapshot } from "./types";
 
 function pseudoRandom(seed: string): number {
   let hash = 0;
@@ -16,11 +17,14 @@ export const mockWearableProvider: WearableProvider = {
     const r = pseudoRandom(logDate);
     return {
       sleepMinutes: Math.round(360 + r * 180),
+      sleepWakeMinutes: Math.round(20 + r * 40),
+      sleepEfficiency: Number((0.78 + r * 0.18).toFixed(3)),
       restingHr: Math.round(58 + r * 12),
       hrvMs: Math.round(25 + r * 35),
       steps: Math.round(1500 + r * 4000),
       activeMinutes: Math.round(20 + r * 50),
       spo2: Math.round(95 + r * 4),
+      respiratoryRate: Number((14 + r * 3).toFixed(1)),
       skinTempC: Number((36.2 + r * 0.8).toFixed(1)),
     } satisfies WearableMetricSnapshot;
   },
@@ -30,16 +34,7 @@ export const googleHealthProvider: WearableProvider = {
   id: "google_health",
   label: "Fitbit / Google Health",
   async syncDailyMetrics() {
-    // Real sync runs in lib/wearables/google-health/sync.ts with stored OAuth tokens.
-    return {
-      sleepMinutes: null,
-      restingHr: null,
-      hrvMs: null,
-      steps: null,
-      activeMinutes: null,
-      spo2: null,
-      skinTempC: null,
-    };
+    return emptyWearableSnapshot();
   },
 };
 

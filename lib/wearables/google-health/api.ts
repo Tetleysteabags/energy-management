@@ -4,11 +4,19 @@ type DataPointsResponse = {
   dataPoints?: Array<Record<string, unknown>>;
 };
 
-function dayWindowUtc(logDate: string): { start: string; end: string } {
-  return {
-    start: `${logDate}T00:00:00Z`,
-    end: `${logDate}T23:59:59Z`,
-  };
+export type SleepSnapshot = {
+  sleepMinutes: number | null;
+  sleepWakeMinutes: number | null;
+  sleepEfficiency: number | null;
+};
+
+function parseGoogleNumber(value: unknown): number | null {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string" && value.trim() !== "") {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
 }
 
 function nextDay(logDate: string): string {
@@ -39,31 +47,57 @@ async function fetchDataPoints(
   return (await response.json()) as DataPointsResponse;
 }
 
+export async function fetchSleepForWakeDate(
+  accessToken: string,
+  logDate: string,
+): Promise<SleepSnapshot> {
+  const end = nextDay(logDate);
+  const filter = `sleep.interval.civil_end_time >= "${logDate}" AND sleep.interval.civil_end_time < "${end}"`;
+
+  const data = await fetchDataPoints(accessToken, "sleep", filter, "list");
+  const points = data.dataPoints ?? [];
+  if (!points.length) {
+    return { sleepMinutes: null, sleepWakeMinutes: null, sleepEfficiency: null };
+  }
+
+  let best: SleepSnapshot = { sleepMinutes: null, sleepWakeMinutes: null, sleepEfficiency: null };
+
+  for (const point of points) {
+    const summary = (point.sleep as { summary?: Record<string, unknown> } | undefined)?.summary;
+    if (!summary) continue;
+
+    const asleep = parseGoogleNumber(summary.minutesAsleep);
+    const awake = parseGoogleNumber(summary.minutesAwake);
+    const inPeriod = parseGoogleNumber(summary.minutesInSleepPeriod);
+    const efficiency =
+      asleep != null && inPeriod != null && inPeriod > 0
+        ? Math.min(1, Math.max(0, asleep / inPeriod))
+        : null;
+
+    if (asleep == null) continue;
+    if (best.sleepMinutes == null || asleep > best.sleepMinutes) {
+      best = {
+        sleepMinutes: Math.round(asleep),
+        sleepWakeMinutes: awake != null ? Math.round(awake) : null,
+        sleepEfficiency: efficiency != null ? Number(efficiency.toFixed(3)) : null,
+      };
+    }
+  }
+
+  return best;
+}
+
 export async function fetchSleepMinutesForWakeDate(
   accessToken: string,
   logDate: string,
 ): Promise<number | null> {
-  const end = nextDay(logDate);
-  const filter = `sleep.interval.end_time >= "${logDate}T00:00:00Z" AND sleep.interval.end_time < "${end}T00:00:00Z"`;
-
-  const data = await fetchDataPoints(accessToken, "sleep", filter, "list");
-  const points = data.dataPoints ?? [];
-  if (!points.length) return null;
-
-  let best: number | null = null;
-  for (const point of points) {
-    const sleep = point.sleep as { summary?: { minutesAsleep?: number } } | undefined;
-    const minutes = sleep?.summary?.minutesAsleep;
-    if (typeof minutes === "number" && (best == null || minutes > best)) {
-      best = minutes;
-    }
-  }
-  return best;
+  const sleep = await fetchSleepForWakeDate(accessToken, logDate);
+  return sleep.sleepMinutes;
 }
 
 export async function fetchStepsForDay(accessToken: string, logDate: string): Promise<number | null> {
-  const { start, end } = dayWindowUtc(logDate);
-  const filter = `steps.interval.start_time >= "${start}" AND steps.interval.start_time <= "${end}"`;
+  const end = nextDay(logDate);
+  const filter = `steps.interval.civil_start_time >= "${logDate}" AND steps.interval.civil_start_time < "${end}"`;
 
   const data = await fetchDataPoints(accessToken, "steps", filter, "reconcile");
   const points = data.dataPoints ?? [];
@@ -71,53 +105,129 @@ export async function fetchStepsForDay(accessToken: string, logDate: string): Pr
 
   let total = 0;
   for (const point of points) {
-    const steps = point.steps as { countSum?: number } | undefined;
-    if (typeof steps?.countSum === "number") {
-      total += steps.countSum;
+    const steps = point.steps as { count?: unknown; countSum?: unknown } | undefined;
+    const count = parseGoogleNumber(steps?.count ?? steps?.countSum);
+    if (count != null) {
+      total += count;
     }
   }
-  return total > 0 ? total : null;
+  return total > 0 ? Math.round(total) : null;
+}
+
+export async function fetchActiveMinutesForDay(
+  accessToken: string,
+  logDate: string,
+): Promise<number | null> {
+  const end = nextDay(logDate);
+  const filter = `active_minutes.interval.civil_start_time >= "${logDate}" AND active_minutes.interval.civil_start_time < "${end}"`;
+
+  try {
+    const data = await fetchDataPoints(accessToken, "active-minutes", filter, "reconcile");
+    const points = data.dataPoints ?? [];
+    if (!points.length) return null;
+
+    let total = 0;
+    for (const point of points) {
+      const levels = (
+        point.activeMinutes as
+          | { activeMinutesByActivityLevel?: Array<{ activeMinutes?: unknown }> }
+          | undefined
+      )?.activeMinutesByActivityLevel;
+      for (const level of levels ?? []) {
+        const minutes = parseGoogleNumber(level.activeMinutes);
+        if (minutes != null) total += minutes;
+      }
+    }
+    return total > 0 ? Math.round(total) : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchSpo2ForDay(accessToken: string, logDate: string): Promise<number | null> {
+  const filter = `daily_oxygen_saturation.date = "${logDate}"`;
+
+  try {
+    const data = await fetchDataPoints(accessToken, "daily-oxygen-saturation", filter, "list");
+    const points = data.dataPoints ?? [];
+
+    for (const point of points) {
+      const spo2 = point.dailyOxygenSaturation as { averagePercentage?: unknown } | undefined;
+      const value = parseGoogleNumber(spo2?.averagePercentage);
+      if (value != null && value >= 80 && value <= 100) {
+        return Math.round(value);
+      }
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchRespiratoryRateForDay(
+  accessToken: string,
+  logDate: string,
+): Promise<number | null> {
+  const filter = `daily_respiratory_rate.date = "${logDate}"`;
+
+  try {
+    const data = await fetchDataPoints(accessToken, "daily-respiratory-rate", filter, "list");
+    const points = data.dataPoints ?? [];
+
+    for (const point of points) {
+      const rr = point.dailyRespiratoryRate as { breathsPerMinute?: unknown } | undefined;
+      const value = parseGoogleNumber(rr?.breathsPerMinute);
+      if (value != null && value >= 5 && value <= 40) {
+        return Math.round(value * 10) / 10;
+      }
+    }
+    return null;
+  } catch {
+    return null;
+  }
 }
 
 export async function fetchRestingHrForDay(
   accessToken: string,
   logDate: string,
 ): Promise<number | null> {
-  const { start, end } = dayWindowUtc(logDate);
-  const filter = `heart_rate.sample_time.physical_time >= "${start}" AND heart_rate.sample_time.physical_time <= "${end}"`;
+  const filter = `daily_resting_heart_rate.date = "${logDate}"`;
 
   try {
-    const data = await fetchDataPoints(accessToken, "heart-rate", filter, "reconcile");
+    const data = await fetchDataPoints(accessToken, "daily-resting-heart-rate", filter, "list");
     const points = data.dataPoints ?? [];
-    const values: number[] = [];
 
     for (const point of points) {
-      const hr = point.heartRate as { value?: { beatsPerMinute?: number } } | undefined;
-      const bpm = hr?.value?.beatsPerMinute;
-      if (typeof bpm === "number" && bpm > 30 && bpm < 220) {
-        values.push(bpm);
+      const hr = point.dailyRestingHeartRate as { beatsPerMinute?: unknown } | undefined;
+      const bpm = parseGoogleNumber(hr?.beatsPerMinute);
+      if (bpm != null && bpm > 30 && bpm < 220) {
+        return Math.round(bpm);
       }
     }
-
-    if (!values.length) return null;
-    return Math.round(values.sort((a, b) => a - b)[Math.floor(values.length * 0.1)] ?? values[0]);
+    return null;
   } catch {
     return null;
   }
 }
 
 export async function fetchHrvForDay(accessToken: string, logDate: string): Promise<number | null> {
-  const filter = `heart_rate_variability.date = "${logDate}"`;
+  const filter = `daily_heart_rate_variability.date = "${logDate}"`;
 
   try {
-    const data = await fetchDataPoints(accessToken, "heart-rate-variability", filter, "list");
+    const data = await fetchDataPoints(accessToken, "daily-heart-rate-variability", filter, "list");
     const points = data.dataPoints ?? [];
+
     for (const point of points) {
-      const hrv = point.heartRateVariability as
-        | { dailyRmssd?: { value?: number } }
+      const hrv = point.dailyHeartRateVariability as
+        | {
+            deepSleepRootMeanSquareOfSuccessiveDifferencesMilliseconds?: unknown;
+            averageHeartRateVariabilityMilliseconds?: unknown;
+          }
         | undefined;
-      const value = hrv?.dailyRmssd?.value;
-      if (typeof value === "number") {
+      const value =
+        parseGoogleNumber(hrv?.deepSleepRootMeanSquareOfSuccessiveDifferencesMilliseconds) ??
+        parseGoogleNumber(hrv?.averageHeartRateVariabilityMilliseconds);
+      if (value != null) {
         return Math.round(value);
       }
     }

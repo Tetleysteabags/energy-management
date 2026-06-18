@@ -106,12 +106,19 @@ export function isoToTimeInputValue(iso: string): string {
   return `${hours}:${minutes}`;
 }
 
-/** Build ISO occurred_at from today's date (or event date) + `HH:mm`. */
+/** Build ISO occurred_at from the event's local calendar date + `HH:mm`. */
 export function timeInputToIso(baseIso: string, timeValue: string): string {
   const [hours, minutes] = timeValue.split(":").map(Number);
-  const date = new Date(baseIso);
-  date.setHours(hours, minutes, 0, 0);
-  return date.toISOString();
+  const base = new Date(baseIso);
+  return new Date(
+    base.getFullYear(),
+    base.getMonth(),
+    base.getDate(),
+    hours,
+    minutes ?? 0,
+    0,
+    0,
+  ).toISOString();
 }
 
 export function minutesBetween(startIso: string, endIso: string): number {
