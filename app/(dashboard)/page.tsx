@@ -81,7 +81,11 @@ export default async function HomePage() {
 
       <TodayEventsCard events={events} />
 
-      <DayFactorsCard logDate={state.logDate} factors={state.todayFactors} />
+      <DayFactorsCard
+        logDate={state.logDate}
+        factors={state.todayFactors}
+        trackCycle={state.trackCycle}
+      />
 
       <SupplementsCard logDate={state.logDate} intake={supplementIntake ?? []} />
 

@@ -19,6 +19,7 @@ export default async function EveningCheckInPage() {
       yesterdayValues={context.yesterday.evening}
       hintValues={context.hints.evening}
       alreadySubmitted={context.today.eveningSubmitted}
+      trackCycle={context.trackCycle}
       supplementIntake={supplementIntake}
     />
   );

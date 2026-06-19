@@ -54,6 +54,7 @@ export interface LoadRowLike {
   alcohol_units: number;
   late_caffeine: boolean;
   late_meal: boolean;
+  on_period: boolean;
   [k: string]: unknown;
 }
 export interface WearableRowLike {
@@ -97,7 +98,7 @@ export interface DailyFrame {
   getSeries(field: string): (number | null)[];
 }
 
-const BOOL_FIELDS = new Set(["alcohol", "late_caffeine", "late_meal"]);
+const BOOL_FIELDS = new Set(["alcohol", "late_caffeine", "late_meal", "on_period"]);
 const SKIP_FIELDS = new Set(["date", "notes", "source"]);
 
 function mergeNumeric(target: Record<string, number>, row: Record<string, unknown>): void {

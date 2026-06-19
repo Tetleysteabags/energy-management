@@ -31,6 +31,7 @@ type DailyLogRow = {
   alcohol_units: number | null;
   late_caffeine: boolean | null;
   late_meal: boolean | null;
+  on_period: boolean | null;
   notes: string | null;
   evening_submitted_at: string | null;
 };
@@ -90,6 +91,7 @@ function rowToEvening(row: DailyLogRow | null): EveningCheckInValues | null {
     alcoholUnits: row.alcohol_units ?? 0,
     lateCaffeine: row.late_caffeine ?? false,
     lateMeal: row.late_meal ?? false,
+    onPeriod: row.on_period ?? false,
     notes: row.notes ?? "",
   };
 }
@@ -131,6 +133,7 @@ function eveningFromRowPartial(row: DailyLogRow | null): EveningCheckInValues {
     alcoholUnits: row.alcohol_units ?? 0,
     lateCaffeine: row.late_caffeine ?? false,
     lateMeal: row.late_meal ?? false,
+    onPeriod: row.on_period ?? false,
     notes: row.notes ?? "",
   };
 }
@@ -156,6 +159,7 @@ function eveningInitial(todayRow: DailyLogRow | null, yesterdayRow: DailyLogRow 
       alcoholUnits: todayRow.alcohol_units ?? base.alcoholUnits,
       lateCaffeine: todayRow.late_caffeine ?? base.lateCaffeine,
       lateMeal: todayRow.late_meal ?? base.lateMeal,
+      onPeriod: todayRow.on_period ?? base.onPeriod,
     };
   }
 
@@ -174,17 +178,21 @@ export async function getCheckInContext(logDate = todayLogDate()) {
 
   const yesterday = yesterdayLogDate(logDate);
 
-  const { data: rows } = await supabase
-    .from("daily_logs")
-    .select("*")
-    .eq("user_id", user.id)
-    .in("log_date", [logDate, yesterday]);
+  const [{ data: rows }, { data: settings }] = await Promise.all([
+    supabase
+      .from("daily_logs")
+      .select("*")
+      .eq("user_id", user.id)
+      .in("log_date", [logDate, yesterday]),
+    supabase.from("user_settings").select("track_cycle").eq("user_id", user.id).maybeSingle(),
+  ]);
 
   const todayRow = (rows?.find((row) => row.log_date === logDate) ?? null) as DailyLogRow | null;
   const yesterdayRow = (rows?.find((row) => row.log_date === yesterday) ?? null) as DailyLogRow | null;
 
   return {
     logDate,
+    trackCycle: settings?.track_cycle ?? false,
     today: {
       morning: morningInitial(todayRow, yesterdayRow),
       evening: eveningInitial(todayRow, yesterdayRow),
@@ -217,11 +225,14 @@ export async function getHomeState() {
   const logDate = todayLogDate();
   const yesterday = yesterdayLogDate(logDate);
 
-  const { data: rows } = await supabase
-    .from("daily_logs")
-    .select("*")
-    .eq("user_id", user.id)
-    .in("log_date", [logDate, yesterday]);
+  const [{ data: rows }, { data: settings }] = await Promise.all([
+    supabase
+      .from("daily_logs")
+      .select("*")
+      .eq("user_id", user.id)
+      .in("log_date", [logDate, yesterday]),
+    supabase.from("user_settings").select("track_cycle").eq("user_id", user.id).maybeSingle(),
+  ]);
 
   const todayRow = (rows?.find((row) => row.log_date === logDate) ?? null) as DailyLogRow | null;
   const yesterdayRow = (rows?.find((row) => row.log_date === yesterday) ?? null) as DailyLogRow | null;
@@ -240,6 +251,7 @@ export async function getHomeState() {
 
   return {
     logDate,
+    trackCycle: settings?.track_cycle ?? false,
     greeting: greetingForHour(),
     due: dueCheckIn(morningDone, eveningDone),
     morningDone,
@@ -255,6 +267,7 @@ export async function getHomeState() {
       alcoholUnits: todayRow?.alcohol_units ?? 0,
       lateCaffeine: todayRow?.late_caffeine ?? false,
       lateMeal: todayRow?.late_meal ?? false,
+      onPeriod: todayRow?.on_period ?? false,
     },
   };
 }

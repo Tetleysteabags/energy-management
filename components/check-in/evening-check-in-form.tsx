@@ -23,6 +23,7 @@ type EveningCheckInFormProps = {
   hintValues: EveningCheckInValues | null;
   alreadySubmitted: boolean;
   supplementIntake: SupplementIntake[];
+  trackCycle: boolean;
 };
 
 export function EveningCheckInForm({
@@ -32,6 +33,7 @@ export function EveningCheckInForm({
   hintValues,
   alreadySubmitted,
   supplementIntake: initialSupplementIntake,
+  trackCycle,
 }: EveningCheckInFormProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -193,6 +195,13 @@ export function EveningCheckInForm({
                   pressed={values.lateMeal}
                   onPressedChange={(lateMeal) => patch({ lateMeal })}
                 />
+                {trackCycle ? (
+                  <ToggleChip
+                    label="On period"
+                    pressed={values.onPeriod}
+                    onPressedChange={(onPeriod) => patch({ onPeriod })}
+                  />
+                ) : null}
               </div>
               {values.alcohol ? (
                 <div className="flex items-center gap-3 pt-1">

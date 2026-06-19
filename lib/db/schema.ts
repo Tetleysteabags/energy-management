@@ -46,6 +46,7 @@ export const dailyLogs = pgTable(
     alcoholUnits: smallint("alcohol_units"),
     lateCaffeine: boolean("late_caffeine").notNull().default(false),
     lateMeal: boolean("late_meal").notNull().default(false),
+    onPeriod: boolean("on_period").notNull().default(false),
     notes: text("notes"),
     eveningSubmittedAt: timestamp("evening_submitted_at", { withTimezone: true }),
 
@@ -56,3 +57,11 @@ export const dailyLogs = pgTable(
   },
   (table) => [uniqueIndex("daily_logs_user_date_idx").on(table.userId, table.logDate)],
 );
+
+export const userSettings = pgTable("user_settings", {
+  userId: uuid("user_id").primaryKey(),
+  llmNotesEnabled: boolean("llm_notes_enabled").notNull().default(false),
+  trackCycle: boolean("track_cycle").notNull().default(false),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
