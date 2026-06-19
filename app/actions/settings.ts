@@ -145,6 +145,27 @@ export async function updateLlmNotesEnabled(enabled: boolean): Promise<ActionRes
   return {};
 }
 
+export async function updateTrackCycle(enabled: boolean): Promise<ActionResult> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return { error: "You need to be signed in." };
+
+  const { error } = await supabase.from("user_settings").upsert({
+    user_id: user.id,
+    track_cycle: enabled,
+  });
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/settings");
+  revalidatePath("/");
+  revalidatePath("/check-in/evening");
+  return {};
+}
+
 export async function confirmNoteTag(tagId: string, confirmed: boolean): Promise<ActionResult> {
   const supabase = await createClient();
   const {

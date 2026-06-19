@@ -28,6 +28,7 @@ export type EveningCheckInValues = {
   alcoholUnits: number;
   lateCaffeine: boolean;
   lateMeal: boolean;
+  onPeriod: boolean;
   notes: string;
 };
 
@@ -55,5 +56,6 @@ export const DEFAULT_EVENING: EveningCheckInValues = {
   alcoholUnits: 0,
   lateCaffeine: false,
   lateMeal: false,
+  onPeriod: false,
   notes: "",
 };

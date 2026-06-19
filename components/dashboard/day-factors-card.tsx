@@ -12,14 +12,16 @@ export type DayFactors = {
   alcoholUnits: number;
   lateCaffeine: boolean;
   lateMeal: boolean;
+  onPeriod: boolean;
 };
 
 type DayFactorsCardProps = {
   logDate: string;
   factors: DayFactors;
+  trackCycle: boolean;
 };
 
-export function DayFactorsCard({ logDate, factors: initial }: DayFactorsCardProps) {
+export function DayFactorsCard({ logDate, factors: initial, trackCycle }: DayFactorsCardProps) {
   const router = useRouter();
   const [factors, setFactors] = useState<DayFactors>(initial);
   const [pending, startTransition] = useTransition();
@@ -64,6 +66,13 @@ export function DayFactorsCard({ logDate, factors: initial }: DayFactorsCardProp
           pressed={factors.lateMeal}
           onPressedChange={(lateMeal) => persist({ ...factors, lateMeal })}
         />
+        {trackCycle ? (
+          <ToggleChip
+            label="On period"
+            pressed={factors.onPeriod}
+            onPressedChange={(onPeriod) => persist({ ...factors, onPeriod })}
+          />
+        ) : null}
       </div>
 
       {factors.alcohol ? (

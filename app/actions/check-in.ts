@@ -91,6 +91,7 @@ export async function submitEveningCheckIn({
       : null,
     late_caffeine: values.lateCaffeine,
     late_meal: values.lateMeal,
+    on_period: values.onPeriod,
     notes: values.notes.trim() || null,
     evening_submitted_at: new Date().toISOString(),
   };
@@ -114,12 +115,14 @@ export async function saveDayFactors({
   alcoholUnits,
   lateCaffeine,
   lateMeal,
+  onPeriod,
 }: {
   logDate: string;
   alcohol: boolean;
   alcoholUnits: number;
   lateCaffeine: boolean;
   lateMeal: boolean;
+  onPeriod: boolean;
 }): Promise<ActionResult> {
   const supabase = await createClient();
   const {
@@ -137,6 +140,7 @@ export async function saveDayFactors({
     alcohol_units: alcohol ? Math.min(20, Math.max(0, Math.round(alcoholUnits))) : null,
     late_caffeine: lateCaffeine,
     late_meal: lateMeal,
+    on_period: onPeriod,
   };
 
   const { error } = await supabase.from("daily_logs").upsert(payload, {

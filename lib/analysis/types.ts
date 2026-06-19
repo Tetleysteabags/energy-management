@@ -75,6 +75,7 @@ export const FIELD_OPTIONS = [
   { value: "alcohol", label: "Alcohol" },
   { value: "late_caffeine", label: "Late caffeine" },
   { value: "late_meal", label: "Late meal" },
+  { value: "on_period", label: "On period" },
 ] as const;
 
 export const LOAD_FIELDS = new Set(["physical_load", "cognitive_load", "social_load"]);

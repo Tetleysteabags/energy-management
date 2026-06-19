@@ -27,6 +27,7 @@ export type DbDailyLog = {
   alcohol_units: number | null;
   late_caffeine: boolean | null;
   late_meal: boolean | null;
+  on_period: boolean | null;
   evening_submitted_at: string | null;
   is_excluded: boolean | null;
   is_crash: boolean | null;
@@ -90,6 +91,7 @@ export function dailyLogToLoadRow(row: DbDailyLog): LoadRowLike | null {
     alcohol_units: num(row.alcohol_units) ?? 0,
     late_caffeine: row.late_caffeine ?? false,
     late_meal: row.late_meal ?? false,
+    on_period: row.on_period ?? false,
     is_excluded: row.is_excluded ? 1 : 0,
   };
 }
@@ -163,6 +165,7 @@ export const UI_TO_ENGINE_FIELD: Record<string, string> = {
   alcohol: "alcohol_units",
   late_caffeine: "late_caffeine",
   late_meal: "late_meal",
+  on_period: "on_period",
 };
 
 export const ENGINE_LOAD_FIELDS = new Set([

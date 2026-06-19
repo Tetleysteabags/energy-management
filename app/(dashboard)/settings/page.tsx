@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { CycleTrackingToggle } from "@/components/settings/cycle-tracking-toggle";
 import { ThemeToggle } from "@/components/settings/theme-toggle";
 import { createClient } from "@/lib/supabase/server";
 
@@ -19,6 +20,12 @@ export default async function SettingsPage() {
 
   if (!user) redirect("/login");
 
+  const { data: settings } = await supabase
+    .from("user_settings")
+    .select("track_cycle")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
   return (
     <div className="space-y-6">
       <div className="space-y-1">
@@ -31,6 +38,11 @@ export default async function SettingsPage() {
       <section className="space-y-2">
         <h2 className="text-sm font-medium">Appearance</h2>
         <ThemeToggle />
+      </section>
+
+      <section className="space-y-2">
+        <h2 className="text-sm font-medium">Health tracking</h2>
+        <CycleTrackingToggle enabled={settings?.track_cycle ?? false} />
       </section>
 
       <div className="space-y-2">
