@@ -61,21 +61,6 @@ export type ExploreResult = {
   n?: number;
 };
 
-export const FIELD_OPTIONS = [
-  { value: "physical_load", label: "Physical load" },
-  { value: "cognitive_load", label: "Cognitive load" },
-  { value: "social_load", label: "Social load" },
-  { value: "sleep_quality", label: "Sleep quality" },
-  { value: "morning_fatigue", label: "Morning fatigue" },
-  { value: "evening_fatigue", label: "Evening fatigue" },
-  { value: "morning_brain_fog", label: "Morning brain fog" },
-  { value: "evening_brain_fog", label: "Evening brain fog" },
-  { value: "capacity", label: "Capacity" },
-  { value: "pem", label: "PEM feeling" },
-  { value: "alcohol", label: "Alcohol" },
-  { value: "late_caffeine", label: "Late caffeine" },
-  { value: "late_meal", label: "Late meal" },
-  { value: "on_period", label: "On period" },
-] as const;
+export { EXPLORE_FIELD_OPTIONS as FIELD_OPTIONS } from "./explore-fields";
 
 export const LOAD_FIELDS = new Set(["physical_load", "cognitive_load", "social_load"]);

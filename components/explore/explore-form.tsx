@@ -1,10 +1,16 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { watchHypothesis } from "@/app/actions/settings";
 import { ComparisonBars } from "@/components/analysis/analysis-sections";
-import { FIELD_OPTIONS, type ExploreQuery } from "@/lib/analysis/types";
+import {
+  EXPLORE_FIELD_GROUP_LABELS,
+  EXPLORE_FIELD_OPTIONS,
+  EXPLORE_SOURCES_INFO,
+  exploreFieldHints,
+} from "@/lib/analysis/explore-fields";
+import type { ExploreQuery } from "@/lib/analysis/types";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import type { ExploreResult } from "@/lib/analysis/types";
@@ -21,6 +27,11 @@ export function ExploreForm({ initialResult, onQuery }: ExploreFormProps) {
   const [result, setResult] = useState(initialResult);
   const [pending, startTransition] = useTransition();
   const [watchMessage, setWatchMessage] = useState<string | null>(null);
+
+  const fieldHints = useMemo(
+    () => exploreFieldHints(predictor, outcome),
+    [predictor, outcome],
+  );
 
   function runQuery() {
     startTransition(async () => {
@@ -41,6 +52,18 @@ export function ExploreForm({ initialResult, onQuery }: ExploreFormProps) {
     <div className="space-y-6">
       <div className="border-warning/30 bg-warning/10 rounded-lg border px-4 py-3 text-sm leading-relaxed">
         Hypothesis-generating only — not evidence. Raw, uncorrected, coincidence-prone.
+      </div>
+
+      <div className="border-border/60 bg-secondary/30 rounded-lg border px-4 py-3 text-sm leading-relaxed">
+        <p className="font-medium">What these numbers mean</p>
+        <p className="text-muted-foreground mt-1">{EXPLORE_SOURCES_INFO}</p>
+        {fieldHints.length ? (
+          <ul className="text-muted-foreground mt-2 list-disc space-y-1 pl-4">
+            {fieldHints.map((hint) => (
+              <li key={hint}>{hint}</li>
+            ))}
+          </ul>
+        ) : null}
       </div>
 
       <div className="space-y-4">
@@ -109,6 +132,9 @@ function FieldSelect({
   value: string;
   onChange: (value: string) => void;
 }) {
+  const checkinOptions = EXPLORE_FIELD_OPTIONS.filter((option) => option.group === "checkin");
+  const wearableOptions = EXPLORE_FIELD_OPTIONS.filter((option) => option.group === "wearable");
+
   return (
     <div className="space-y-2">
       <Label htmlFor={id}>{label}</Label>
@@ -118,11 +144,20 @@ function FieldSelect({
         onChange={(event) => onChange(event.target.value)}
         className="border-input bg-background w-full rounded-lg border px-3 py-2 text-sm"
       >
-        {FIELD_OPTIONS.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
+        <optgroup label={EXPLORE_FIELD_GROUP_LABELS.checkin}>
+          {checkinOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </optgroup>
+        <optgroup label={EXPLORE_FIELD_GROUP_LABELS.wearable}>
+          {wearableOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </optgroup>
       </select>
     </div>
   );

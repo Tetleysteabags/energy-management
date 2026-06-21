@@ -54,6 +54,8 @@ export async function submitMorningCheckIn({
 
   revalidatePath("/");
   revalidatePath("/check-in/morning");
+  revalidatePath("/analysis");
+  revalidatePath("/trends");
   return {};
 }
 
@@ -106,6 +108,8 @@ export async function submitEveningCheckIn({
 
   revalidatePath("/");
   revalidatePath("/check-in/evening");
+  revalidatePath("/analysis");
+  revalidatePath("/trends");
   return {};
 }
 
@@ -153,6 +157,8 @@ export async function saveDayFactors({
 
   revalidatePath("/");
   revalidatePath("/check-in/evening");
+  revalidatePath("/analysis");
+  revalidatePath("/trends");
   return {};
 }
 

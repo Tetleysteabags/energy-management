@@ -1,4 +1,5 @@
 import type { DailyFrame } from "./analysis-engine";
+import { exploreFieldLabel } from "./explore-fields";
 import {
   ENGINE_LOAD_FIELDS,
   uiFieldToEngine,
@@ -11,6 +12,7 @@ const SYMPTOM_FIELDS = new Set([
   "brain_fog_score",
   "subjective_sleep_quality",
   "overall_capacity_score",
+  "muscle_soreness_score",
 ]);
 
 function isLoadField(field: string): boolean {
@@ -67,12 +69,14 @@ export function runExploreQueryOnFrame(
   const mean = (items: { outcome: number }[]) =>
     items.reduce((sum, item) => sum + item.outcome, 0) / items.length;
 
+  const predictorLabel = exploreFieldLabel(query.predictor).toLowerCase();
+
   return {
     blocked: false,
     highMean: Number(mean(highGroup).toFixed(1)),
     lowMean: Number(mean(lowGroup).toFixed(1)),
-    highLabel: `After higher ${query.predictor.replace(/_/g, " ")} days`,
-    lowLabel: `After lower ${query.predictor.replace(/_/g, " ")} days`,
+    highLabel: `After higher ${predictorLabel} days`,
+    lowLabel: `After lower ${predictorLabel} days`,
     n: pairs.length,
   };
 }

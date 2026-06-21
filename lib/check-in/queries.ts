@@ -1,6 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
 import { greetingForHour } from "@/lib/check-in/greeting";
+import {
+  isToday,
+  todayLogDate,
+  yesterdayLogDate,
+} from "@/lib/check-in/log-date";
 import { BASELINE_TARGET_DAYS } from "@/lib/check-in/scales";
+
+export { todayLogDate, yesterdayLogDate } from "@/lib/check-in/log-date";
 import {
   DEFAULT_EVENING,
   DEFAULT_MORNING,
@@ -37,16 +44,6 @@ type DailyLogRow = {
 };
 
 export type DueCheckIn = "morning" | "evening" | "done";
-
-export function todayLogDate(): string {
-  return new Date().toISOString().slice(0, 10);
-}
-
-export function yesterdayLogDate(fromDate = todayLogDate()): string {
-  const date = new Date(`${fromDate}T12:00:00`);
-  date.setDate(date.getDate() - 1);
-  return date.toISOString().slice(0, 10);
-}
 
 export function dueCheckIn(morningDone: boolean, eveningDone: boolean): DueCheckIn {
   if (!morningDone) return "morning";
@@ -212,7 +209,7 @@ export async function getCheckInContext(logDate = todayLogDate()) {
 
 export type CheckInContext = NonNullable<Awaited<ReturnType<typeof getCheckInContext>>>;
 
-export async function getHomeState() {
+export async function getHomeState(logDate = todayLogDate()) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -222,7 +219,7 @@ export async function getHomeState() {
     return null;
   }
 
-  const logDate = todayLogDate();
+  const viewingToday = isToday(logDate);
   const yesterday = yesterdayLogDate(logDate);
 
   const [{ data: rows }, { data: settings }] = await Promise.all([
@@ -251,6 +248,7 @@ export async function getHomeState() {
 
   return {
     logDate,
+    viewingToday,
     trackCycle: settings?.track_cycle ?? false,
     greeting: greetingForHour(),
     due: dueCheckIn(morningDone, eveningDone),

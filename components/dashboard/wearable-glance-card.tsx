@@ -20,9 +20,10 @@ function Stat({ label, value }: { label: string; value: string }) {
 
 type WearableGlanceCardProps = {
   glance: WearableGlance;
+  readOnly?: boolean;
 };
 
-export function WearableGlanceCard({ glance }: WearableGlanceCardProps) {
+export function WearableGlanceCard({ glance, readOnly = false }: WearableGlanceCardProps) {
   return (
     <section className="border-border/60 space-y-4 rounded-lg border bg-card px-4 py-3">
       <div className="space-y-2">
@@ -56,7 +57,7 @@ export function WearableGlanceCard({ glance }: WearableGlanceCardProps) {
         </div>
       </div>
 
-      {glance.note ? (
+      {glance.note && !readOnly ? (
         <p className="text-muted-foreground text-xs leading-relaxed">{glance.note}</p>
       ) : null}
     </section>

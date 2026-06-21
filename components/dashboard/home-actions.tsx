@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { submitEveningCheckIn, submitMorningCheckIn } from "@/app/actions/check-in";
 import { SameAsYesterdayButton } from "@/components/check-in/same-as-yesterday-button";
 import type { HomeState } from "@/lib/check-in/queries";
+import { logDateQueryParam } from "@/lib/check-in/log-date";
 import { Button } from "@/components/ui/button";
 
 type HomeActionsProps = {
@@ -16,6 +17,9 @@ export function HomeActions({ state }: HomeActionsProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [loggedMessage, setLoggedMessage] = useState<string | null>(null);
+
+  const dateQuery = logDateQueryParam(state.logDate);
+  const loggedLabel = state.viewingToday ? "Logged for today" : "Saved for this day";
 
   const canSameAsYesterday =
     state.due === "morning"
@@ -32,7 +36,7 @@ export function HomeActions({ state }: HomeActionsProps) {
           values: state.yesterdayMorning,
         });
         if (!result.error) {
-          setLoggedMessage("Logged for today");
+          setLoggedMessage(loggedLabel);
           router.refresh();
         }
         return;
@@ -44,7 +48,7 @@ export function HomeActions({ state }: HomeActionsProps) {
           values: { ...state.yesterdayEvening, notes: "" },
         });
         if (!result.error) {
-          setLoggedMessage("Logged for today");
+          setLoggedMessage(loggedLabel);
           router.refresh();
         }
       }
@@ -62,13 +66,22 @@ export function HomeActions({ state }: HomeActionsProps) {
   if (state.due === "done") {
     return (
       <div className="border-border/60 rounded-lg border bg-card px-4 py-6">
-        <p className="text-sm font-medium">All logged today</p>
-        <p className="text-muted-foreground mt-1 text-sm">Nothing else needed right now.</p>
+        <p className="text-sm font-medium">
+          {state.viewingToday ? "All logged today" : "All logged for this day"}
+        </p>
+        <p className="text-muted-foreground mt-1 text-sm">
+          {state.viewingToday
+            ? "Nothing else needed right now."
+            : "You can still edit check-ins or events above."}
+        </p>
       </div>
     );
   }
 
-  const href = state.due === "morning" ? "/check-in/morning" : "/check-in/evening";
+  const href =
+    state.due === "morning"
+      ? `/check-in/morning${dateQuery}`
+      : `/check-in/evening${dateQuery}`;
   const label =
     state.due === "morning" ? "Morning check-in (~20s)" : "Evening check-in (~20s)";
 

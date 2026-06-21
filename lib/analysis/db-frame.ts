@@ -166,6 +166,11 @@ export const UI_TO_ENGINE_FIELD: Record<string, string> = {
   late_caffeine: "late_caffeine",
   late_meal: "late_meal",
   on_period: "on_period",
+  hrv: "hrv_rmssd",
+  resting_hr: "resting_hr",
+  sleep_duration: "total_sleep_minutes",
+  sleep_efficiency: "sleep_efficiency",
+  steps: "steps",
 };
 
 export const ENGINE_LOAD_FIELDS = new Set([

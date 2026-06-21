@@ -5,6 +5,7 @@ export type TrendDay = {
   logDate: string;
   capacity: number | null;
   eveningFatigue: number | null;
+  eveningMuscleLevel: number | null;
   sleepQuality: number | null;
   isCrash: boolean;
 };
@@ -23,7 +24,7 @@ export async function getTrendData(): Promise<{
   const { data: rows } = await supabase
     .from("daily_logs")
     .select(
-      "log_date, capacity, evening_fatigue, sleep_quality, is_crash, evening_submitted_at, morning_submitted_at",
+      "log_date, capacity, evening_fatigue, evening_pain, sleep_quality, is_crash, evening_submitted_at, morning_submitted_at",
     )
     .eq("user_id", user.id)
     .order("log_date", { ascending: true });
@@ -35,6 +36,7 @@ export async function getTrendData(): Promise<{
         logDate: row.log_date,
         capacity: row.capacity,
         eveningFatigue: row.evening_fatigue,
+        eveningMuscleLevel: row.evening_pain,
         sleepQuality: row.sleep_quality,
         isCrash: row.is_crash ?? false,
       })) ?? [];

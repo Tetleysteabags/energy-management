@@ -34,6 +34,8 @@ export async function saveSupplementIntake({
 
   revalidatePath("/");
   revalidatePath("/check-in/evening");
+  revalidatePath("/analysis");
+  revalidatePath("/trends");
   return {};
 }
 
@@ -59,6 +61,8 @@ export async function addSupplement(name: string): Promise<ActionResult & { id?:
   revalidatePath("/");
   revalidatePath("/check-in/evening");
   revalidatePath("/settings/supplements");
+  revalidatePath("/analysis");
+  revalidatePath("/trends");
   return { id: data.id };
 }
 

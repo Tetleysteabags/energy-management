@@ -1,9 +1,16 @@
 import { redirect } from "next/navigation";
 import { MorningCheckInForm } from "@/components/check-in/morning-check-in-form";
+import { parseLogDateParam } from "@/lib/check-in/log-date";
 import { getCheckInContext } from "@/lib/check-in/queries";
 
-export default async function MorningCheckInPage() {
-  const context = await getCheckInContext();
+type MorningCheckInPageProps = {
+  searchParams: Promise<{ date?: string }>;
+};
+
+export default async function MorningCheckInPage({ searchParams }: MorningCheckInPageProps) {
+  const params = await searchParams;
+  const logDate = parseLogDateParam(params.date);
+  const context = await getCheckInContext(logDate);
 
   if (!context) {
     redirect("/login");

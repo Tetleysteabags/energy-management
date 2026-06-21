@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { isToday, middayIsoForLogDate } from "@/lib/check-in/log-date";
 import { DEFAULT_EVENT_DURATION } from "@/lib/events/types";
 
 type ActionResult = { error?: string; id?: string };
@@ -9,16 +10,20 @@ type ActionResult = { error?: string; id?: string };
 function revalidateEventPaths(): void {
   revalidatePath("/");
   revalidatePath("/events");
+  revalidatePath("/analysis");
+  revalidatePath("/trends");
 }
 
 export async function addQuickEvent({
   eventType,
   label,
   occurredAt,
+  logDate,
 }: {
   eventType: string;
   label: string;
   occurredAt?: string;
+  logDate?: string;
 }): Promise<ActionResult> {
   const supabase = await createClient();
   const {
@@ -27,13 +32,18 @@ export async function addQuickEvent({
 
   if (!user) return { error: "You need to be signed in." };
 
+  const defaultOccurredAt =
+    logDate && !isToday(logDate)
+      ? middayIsoForLogDate(logDate)
+      : new Date().toISOString();
+
   const { data, error } = await supabase
     .from("events")
     .insert({
       user_id: user.id,
       event_type: eventType,
       label,
-      occurred_at: occurredAt ?? new Date().toISOString(),
+      occurred_at: occurredAt ?? defaultOccurredAt,
       duration_minutes: DEFAULT_EVENT_DURATION[eventType] ?? null,
     })
     .select("id")

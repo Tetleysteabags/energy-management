@@ -10,6 +10,7 @@ import {
 } from "@/app/actions/events";
 import { EventRowItem } from "@/components/events/event-row-item";
 import { QuickAddBar } from "@/components/events/quick-add-bar";
+import { formatLogDateLabel } from "@/lib/check-in/log-date";
 import { eventHasDuration, QUICK_EVENT_TYPES, type EventRow } from "@/lib/events/types";
 
 const HOME_EVENT_TYPES = QUICK_EVENT_TYPES.filter(
@@ -18,9 +19,15 @@ const HOME_EVENT_TYPES = QUICK_EVENT_TYPES.filter(
 
 type TodayEventsCardProps = {
   events: EventRow[];
+  logDate: string;
+  viewingToday?: boolean;
 };
 
-export function TodayEventsCard({ events }: TodayEventsCardProps) {
+export function TodayEventsCard({
+  events,
+  logDate,
+  viewingToday = true,
+}: TodayEventsCardProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [, startUiTransition] = useTransition();
@@ -37,7 +44,7 @@ export function TodayEventsCard({ events }: TodayEventsCardProps) {
   function handleAdd(eventType: string, label: string) {
     refresh(
       async () => {
-        const result = await addQuickEvent({ eventType, label });
+        const result = await addQuickEvent({ eventType, label, logDate });
         if (result.id && eventHasDuration(eventType)) {
           setDurationEditId(result.id);
         }
@@ -46,10 +53,12 @@ export function TodayEventsCard({ events }: TodayEventsCardProps) {
     );
   }
 
+  const heading = viewingToday ? "Today" : formatLogDateLabel(logDate);
+
   return (
     <section className="border-border/60 space-y-3 rounded-lg border bg-card px-4 py-3">
       <div className="flex items-center justify-between gap-2">
-        <h2 className="text-sm font-medium">Today</h2>
+        <h2 className="text-sm font-medium">{heading}</h2>
         {events.length > 0 ? (
           <Link href="/events" className="text-muted-foreground text-xs hover:underline">
             Full history

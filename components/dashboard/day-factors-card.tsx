@@ -6,6 +6,7 @@ import { saveDayFactors } from "@/app/actions/check-in";
 import { ToggleChip } from "@/components/check-in/toggle-chip";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { formatLogDateLabel } from "@/lib/check-in/log-date";
 
 export type DayFactors = {
   alcohol: boolean;
@@ -19,9 +20,15 @@ type DayFactorsCardProps = {
   logDate: string;
   factors: DayFactors;
   trackCycle: boolean;
+  viewingToday?: boolean;
 };
 
-export function DayFactorsCard({ logDate, factors: initial, trackCycle }: DayFactorsCardProps) {
+export function DayFactorsCard({
+  logDate,
+  factors: initial,
+  trackCycle,
+  viewingToday = true,
+}: DayFactorsCardProps) {
   const router = useRouter();
   const [factors, setFactors] = useState<DayFactors>(initial);
   const [pending, startTransition] = useTransition();
@@ -48,7 +55,9 @@ export function DayFactorsCard({ logDate, factors: initial, trackCycle }: DayFac
 
   return (
     <section className="border-border/60 space-y-3 rounded-lg border bg-card px-4 py-3">
-      <h2 className="text-sm font-medium">Today&apos;s factors</h2>
+      <h2 className="text-sm font-medium">
+        {viewingToday ? "Today's factors" : `Factors · ${formatLogDateLabel(logDate)}`}
+      </h2>
 
       <div className="flex flex-wrap gap-2">
         <ToggleChip
