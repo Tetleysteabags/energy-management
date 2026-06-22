@@ -13,6 +13,7 @@ import { ToggleChip } from "@/components/check-in/toggle-chip";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { capacityWord, chestWord, muscleWord, symptomWord } from "@/lib/check-in/scales";
+import { formatLogDateLabel, homePathForLogDate, isToday } from "@/lib/check-in/log-date";
 import type { EveningCheckInValues } from "@/lib/check-in/types";
 import type { SupplementIntake } from "@/lib/supplements/queries";
 
@@ -81,9 +82,11 @@ export function EveningCheckInForm({
   if (logged) {
     return (
       <div className="border-border/60 rounded-lg border bg-card px-4 py-8 text-center">
-        <p className="text-sm font-medium">Logged for today</p>
+        <p className="text-sm font-medium">
+          {isToday(logDate) ? "Logged for today" : "Saved for this day"}
+        </p>
         <p className="text-muted-foreground mt-1 text-sm">Evening check-in saved.</p>
-        <Button variant="ghost" className="mt-4" onClick={() => router.push("/")}>
+        <Button variant="ghost" className="mt-4" onClick={() => router.push(homePathForLogDate(logDate))}>
           Back to home
         </Button>
       </div>
@@ -94,6 +97,9 @@ export function EveningCheckInForm({
     <div className="space-y-6">
       <div className="space-y-1">
         <h1 className="text-xl font-medium">Evening check-in</h1>
+        {!isToday(logDate) ? (
+          <p className="text-muted-foreground text-sm">{formatLogDateLabel(logDate)}</p>
+        ) : null}
         <p className="text-muted-foreground text-sm">Change only what&apos;s different.</p>
       </div>
 
@@ -287,7 +293,11 @@ export function EveningCheckInForm({
       ) : null}
 
       {alreadySubmitted ? (
-        <p className="text-muted-foreground text-xs">Updating today&apos;s evening entry.</p>
+        <p className="text-muted-foreground text-xs">
+          {isToday(logDate)
+            ? "Updating today's evening entry."
+            : `Updating evening entry for ${formatLogDateLabel(logDate)}.`}
+        </p>
       ) : null}
 
       <Button

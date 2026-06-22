@@ -66,3 +66,7 @@ export function middayIsoForLogDate(logDate: string): string {
 export function logDateQueryParam(logDate: string): string {
   return isToday(logDate) ? "" : `?date=${logDate}`;
 }
+
+export function homePathForLogDate(logDate: string): string {
+  return isToday(logDate) ? "/" : `/?date=${logDate}`;
+}
