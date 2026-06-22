@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { memo, useMemo, useState, useTransition } from "react";
 import { capacityColor, formatDaySummary } from "@/lib/trends/capacity";
 import type { TrendDay } from "@/lib/trends/queries";
@@ -121,7 +122,15 @@ export function CapacityHeatmap({ days }: CapacityHeatmapProps) {
       </div>
 
       {selected ? (
-        <p className="text-muted-foreground text-sm">{formatDaySummary(selected)}</p>
+        <div className="space-y-2">
+          <p className="text-muted-foreground text-sm">{formatDaySummary(selected)}</p>
+          <Link
+            href={`/?date=${selected.logDate}`}
+            className="text-muted-foreground text-sm hover:underline"
+          >
+            Edit this day
+          </Link>
+        </div>
       ) : (
         <p className="text-muted-foreground text-xs">Tap a day for a one-line summary.</p>
       )}

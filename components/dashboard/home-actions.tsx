@@ -13,6 +13,25 @@ type HomeActionsProps = {
   state: HomeState;
 };
 
+function EditCheckInLinks({ state }: { state: HomeState }) {
+  const dateQuery = logDateQueryParam(state.logDate);
+
+  return (
+    <div className="grid gap-2 sm:grid-cols-2">
+      <Link href={`/check-in/morning${dateQuery}`} className="block">
+        <Button type="button" variant="outline" className="min-h-11 w-full">
+          {state.morningDone ? "Edit morning check-in" : "Add morning check-in"}
+        </Button>
+      </Link>
+      <Link href={`/check-in/evening${dateQuery}`} className="block">
+        <Button type="button" variant="outline" className="min-h-11 w-full">
+          {state.eveningDone ? "Edit evening check-in" : "Add evening check-in"}
+        </Button>
+      </Link>
+    </div>
+  );
+}
+
 export function HomeActions({ state }: HomeActionsProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -63,18 +82,24 @@ export function HomeActions({ state }: HomeActionsProps) {
     );
   }
 
+  if (!state.viewingToday) {
+    return (
+      <section className="space-y-3">
+        <p className="text-muted-foreground text-sm">Check-ins for this day</p>
+        <EditCheckInLinks state={state} />
+      </section>
+    );
+  }
+
   if (state.due === "done") {
     return (
-      <div className="border-border/60 rounded-lg border bg-card px-4 py-6">
-        <p className="text-sm font-medium">
-          {state.viewingToday ? "All logged today" : "All logged for this day"}
-        </p>
-        <p className="text-muted-foreground mt-1 text-sm">
-          {state.viewingToday
-            ? "Nothing else needed right now."
-            : "You can still edit check-ins or events above."}
-        </p>
-      </div>
+      <section className="space-y-4">
+        <div className="border-border/60 rounded-lg border bg-card px-4 py-4">
+          <p className="text-sm font-medium">All logged today</p>
+          <p className="text-muted-foreground mt-1 text-sm">Nothing else needed right now.</p>
+        </div>
+        <EditCheckInLinks state={state} />
+      </section>
     );
   }
 
@@ -95,6 +120,10 @@ export function HomeActions({ state }: HomeActionsProps) {
 
       {canSameAsYesterday ? (
         <SameAsYesterdayButton onClick={handleSameAsYesterday} disabled={pending} />
+      ) : null}
+
+      {state.morningDone || state.eveningDone ? (
+        <EditCheckInLinks state={state} />
       ) : null}
     </div>
   );
