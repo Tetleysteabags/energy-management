@@ -20,8 +20,8 @@ export default async function TrendsPage() {
       <CapacityHeatmap days={data.days} />
 
       <section className="space-y-4">
-        <h2 className="text-sm font-medium">Single metrics</h2>
-        <TrendLineChartsLazy days={data.days} />
+        <h2 className="text-sm font-medium">Trends over time</h2>
+        <TrendLineChartsLazy days={data.chartDays} />
       </section>
     </div>
   );
