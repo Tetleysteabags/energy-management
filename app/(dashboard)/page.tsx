@@ -104,13 +104,18 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       />
 
       <DayFactorsCard
+        key={`factors-${state.logDate}`}
         logDate={state.logDate}
         factors={state.todayFactors}
         trackCycle={state.trackCycle}
         viewingToday={state.viewingToday}
       />
 
-      <SupplementsCard logDate={state.logDate} intake={supplementIntake ?? []} />
+      <SupplementsCard
+        key={`supplements-${state.logDate}`}
+        logDate={state.logDate}
+        intake={supplementIntake ?? []}
+      />
 
       <HomeActions state={state} />
 
