@@ -149,18 +149,15 @@ function eveningInitial(todayRow: DailyLogRow | null, yesterdayRow: DailyLogRow 
   const fromYesterday = rowToEvening(yesterdayRow);
   const base = fromYesterday ? { ...fromYesterday, notes: "" } : DEFAULT_EVENING;
 
-  if (todayRow) {
-    return {
-      ...base,
-      alcohol: todayRow.alcohol ?? base.alcohol,
-      alcoholUnits: todayRow.alcohol_units ?? base.alcoholUnits,
-      lateCaffeine: todayRow.late_caffeine ?? base.lateCaffeine,
-      lateMeal: todayRow.late_meal ?? base.lateMeal,
-      onPeriod: todayRow.on_period ?? base.onPeriod,
-    };
-  }
-
-  return base;
+  // Day factors never carry over from yesterday — only this day's values (or false).
+  return {
+    ...base,
+    alcohol: todayRow?.alcohol ?? false,
+    alcoholUnits: todayRow?.alcohol_units ?? 0,
+    lateCaffeine: todayRow?.late_caffeine ?? false,
+    lateMeal: todayRow?.late_meal ?? false,
+    onPeriod: todayRow?.on_period ?? false,
+  };
 }
 
 export async function getCheckInContext(logDate = todayLogDate()) {

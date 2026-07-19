@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { saveDayFactors } from "@/app/actions/check-in";
 import { ToggleChip } from "@/components/check-in/toggle-chip";
@@ -33,10 +33,17 @@ export function DayFactorsCard({
   const [factors, setFactors] = useState<DayFactors>(initial);
   const [pending, startTransition] = useTransition();
 
+  useEffect(() => {
+    setFactors(initial);
+    // Remount via key covers date switches; this keeps props/state aligned if needed.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only reset when the day changes
+  }, [logDate]);
+
   function persist(next: DayFactors) {
     setFactors(next);
+    const dateForSave = logDate;
     startTransition(async () => {
-      await saveDayFactors({ logDate, ...next });
+      await saveDayFactors({ logDate: dateForSave, ...next });
       router.refresh();
     });
   }
