@@ -2,6 +2,8 @@
 
 A personal pacing and symptom-pattern tracker for people managing energy-limiting chronic conditions, built with Next.js and Supabase. Live at https://energy-management-nine.vercel.app.
 
+Currently accounts are limited as I am testing this out with my wife who has chronic fatigue as a result of long covid.
+
 ## What it does
 
 Two short daily check-ins (morning and evening) capture how the day went, pre-filled from the previous day to keep the effort to a minute or so. Through the day the user can optionally log naps, walks, or other activity. Once enough check-ins accumulate, the analysis engine looks for possible correlations between activity, sleep, and next-day symptoms (e.g. "busy days tend to be followed by lower energy") and surfaces them as leads to watch, not diagnoses.
