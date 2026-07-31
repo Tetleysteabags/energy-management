@@ -49,7 +49,8 @@ export async function updateSession(request: NextRequest) {
 
   if (!user && isProtected) {
     const url = request.nextUrl.clone();
-    url.pathname = "/login";
+    // First-time visitors land on the calm intro; deep links still go to sign-in.
+    url.pathname = pathname === "/" ? "/how-it-works" : "/login";
     return NextResponse.redirect(url);
   }
 

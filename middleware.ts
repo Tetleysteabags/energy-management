@@ -20,6 +20,7 @@ export const config = {
     "/check-in/:path*",
     "/login",
     "/signup",
+    "/how-it-works",
     "/auth/callback",
     "/help",
     "/dashboard/:path*",
