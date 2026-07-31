@@ -1,17 +1,13 @@
 "use client";
 
 import { ChevronDown } from "lucide-react";
-import type { HowToSection } from "@/lib/help/how-to-use";
+import { HOW_IT_WORKS_SECTIONS } from "@/lib/marketing/how-it-works";
 import { cn } from "@/lib/utils";
 
-type HowItWorksAccordionProps = {
-  sections: HowToSection[];
-};
-
-export function HowItWorksAccordion({ sections }: HowItWorksAccordionProps) {
+export function HowItWorksAccordion() {
   return (
     <div className="border-border/60 divide-border/60 divide-y rounded-lg border">
-      {sections.map((section) => {
+      {HOW_IT_WORKS_SECTIONS.map((section) => {
         const Icon = section.icon;
 
         return (
