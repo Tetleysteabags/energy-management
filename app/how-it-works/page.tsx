@@ -2,7 +2,7 @@ import Link from "next/link";
 import { HowItWorksAccordion } from "@/components/marketing/how-it-works-accordion";
 import { buttonVariants } from "@/components/ui/button";
 import { getAccessRequestUrl } from "@/lib/marketing/access-request";
-import { HOW_IT_WORKS_PAGE, HOW_IT_WORKS_SECTIONS } from "@/lib/marketing/how-it-works";
+import { HOW_IT_WORKS_PAGE } from "@/lib/marketing/how-it-works";
 import { cn } from "@/lib/utils";
 
 export default function HowItWorksPage() {
@@ -19,7 +19,7 @@ export default function HowItWorksPage() {
           </p>
         </header>
 
-        <HowItWorksAccordion sections={HOW_IT_WORKS_SECTIONS} />
+        <HowItWorksAccordion />
 
         <section className="border-border/60 space-y-3 rounded-lg border bg-card px-4 py-4">
           <h2 className="text-sm font-medium">Want access?</h2>
