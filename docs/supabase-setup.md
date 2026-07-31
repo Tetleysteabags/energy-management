@@ -79,7 +79,10 @@ Wearables use the **Google Health API** (Fitbit/Pixel Watch data via Google sign
 GOOGLE_HEALTH_CLIENT_ID=your-client-id.apps.googleusercontent.com
 GOOGLE_HEALTH_CLIENT_SECRET=your-client-secret
 WEARABLE_TOKEN_SECRET=long-random-string-at-least-32-chars
+NEXT_PUBLIC_ACCESS_REQUEST_URL=https://formspree.io/f/mzdnqoqb
 ```
+
+`NEXT_PUBLIC_ACCESS_REQUEST_URL` powers the **Request access** button on `/how-it-works` and the login screen. The app also falls back to this Formspree form if the env var is unset.
 
 (`GOOGLE_OAUTH_CLIENT_*` works as a fallback alias. `WEARABLE_TOKEN_SECRET` encrypts refresh tokens at rest; on Vercel use a dedicated random string.)
 

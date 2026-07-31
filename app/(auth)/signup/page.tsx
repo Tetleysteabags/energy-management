@@ -12,6 +12,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { getAccessRequestUrl } from "@/lib/marketing/access-request";
+
+const ACCESS_REQUEST_URL = getAccessRequestUrl();
 
 export default function SignupPage() {
   const router = useRouter();
@@ -156,6 +159,21 @@ export default function SignupPage() {
             <Link href="/login" className="text-foreground underline-offset-4 hover:underline">
               Sign in
             </Link>
+          </p>
+          <p className="text-muted-foreground text-center text-sm leading-relaxed">
+            Prefer to ask first?{" "}
+            <Link href="/how-it-works" className="text-foreground underline-offset-4 hover:underline">
+              How this works
+            </Link>
+            {" · "}
+            <a
+              href={ACCESS_REQUEST_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-foreground underline-offset-4 hover:underline"
+            >
+              Request access
+            </a>
           </p>
         </CardContent>
       </Card>

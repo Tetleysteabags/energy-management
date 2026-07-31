@@ -12,6 +12,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { getAccessRequestUrl } from "@/lib/marketing/access-request";
+
+const ACCESS_REQUEST_URL = getAccessRequestUrl();
 
 function LoginForm() {
   const router = useRouter();
@@ -102,70 +105,97 @@ function LoginForm() {
   const showResend = Boolean(error || info);
 
   return (
-    <Card className="border-border/60 w-full max-w-sm shadow-none">
-      <CardHeader>
-        <CardTitle className="text-xl font-medium">Sign in</CardTitle>
-        <CardDescription>Private recovery logging — your data stays yours.</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <GoogleSignInButton />
-        <AuthDivider />
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              autoComplete="email"
-              required
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              required
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-            />
-          </div>
-          {error ? (
-            <p className="text-destructive text-sm" role="alert">
-              {error}
-            </p>
-          ) : null}
-          {info ? (
-            <p className="text-muted-foreground text-sm" role="status">
-              {info}
-            </p>
-          ) : null}
-          {showResend ? (
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full font-normal"
-              disabled={resendPending || !email}
-              onClick={handleResend}
-            >
-              {resendPending ? "Sending…" : "Resend confirmation email"}
+    <div className="w-full max-w-sm space-y-4">
+      <Card className="border-border/60 shadow-none">
+        <CardHeader>
+          <CardTitle className="text-xl font-medium">Sign in</CardTitle>
+          <CardDescription>Private recovery logging — your data stays yours.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <GoogleSignInButton />
+          <AuthDivider />
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                autoComplete="email"
+                required
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                autoComplete="current-password"
+                required
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+              />
+            </div>
+            {error ? (
+              <p className="text-destructive text-sm" role="alert">
+                {error}
+              </p>
+            ) : null}
+            {info ? (
+              <p className="text-muted-foreground text-sm" role="status">
+                {info}
+              </p>
+            ) : null}
+            {showResend ? (
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full font-normal"
+                disabled={resendPending || !email}
+                onClick={handleResend}
+              >
+                {resendPending ? "Sending…" : "Resend confirmation email"}
+              </Button>
+            ) : null}
+            <Button type="submit" className="w-full" disabled={pending}>
+              {pending ? "Signing in…" : "Sign in"}
             </Button>
-          ) : null}
-          <Button type="submit" className="w-full" disabled={pending}>
-            {pending ? "Signing in…" : "Sign in"}
-          </Button>
-        </form>
-        <p className="text-muted-foreground mt-4 text-center text-sm">
-          No account?{" "}
-          <Link href="/signup" className="text-foreground underline-offset-4 hover:underline">
-            Create one
-          </Link>
-        </p>
-      </CardContent>
-    </Card>
+          </form>
+          <p className="text-muted-foreground mt-4 text-center text-sm">
+            No account yet?{" "}
+            <a
+              href={ACCESS_REQUEST_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-foreground underline-offset-4 hover:underline"
+            >
+              Request access
+            </a>
+            {" · "}
+            <Link href="/signup" className="text-foreground underline-offset-4 hover:underline">
+              Create account
+            </Link>
+          </p>
+        </CardContent>
+      </Card>
+
+      <p className="text-muted-foreground text-center text-sm leading-relaxed">
+        New here?{" "}
+        <Link href="/how-it-works" className="text-foreground underline-offset-4 hover:underline">
+          How this works
+        </Link>
+        {" · "}
+        <a
+          href={ACCESS_REQUEST_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-foreground underline-offset-4 hover:underline"
+        >
+          Request access
+        </a>
+      </p>
+    </div>
   );
 }
 
