@@ -12,9 +12,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { getAccessRequestUrl } from "@/lib/marketing/access-request";
-
-const ACCESS_REQUEST_URL = getAccessRequestUrl();
 
 function LoginForm() {
   const router = useRouter();
@@ -164,14 +161,12 @@ function LoginForm() {
           </form>
           <p className="text-muted-foreground mt-4 text-center text-sm">
             No account yet?{" "}
-            <a
-              href={ACCESS_REQUEST_URL}
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/how-it-works#request-access"
               className="text-foreground underline-offset-4 hover:underline"
             >
               Request access
-            </a>
+            </Link>
             {" · "}
             <Link href="/signup" className="text-foreground underline-offset-4 hover:underline">
               Create account
@@ -186,14 +181,12 @@ function LoginForm() {
           How this works
         </Link>
         {" · "}
-        <a
-          href={ACCESS_REQUEST_URL}
-          target="_blank"
-          rel="noopener noreferrer"
+        <Link
+          href="/how-it-works#request-access"
           className="text-foreground underline-offset-4 hover:underline"
         >
           Request access
-        </a>
+        </Link>
       </p>
     </div>
   );
