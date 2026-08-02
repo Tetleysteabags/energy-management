@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,6 +10,21 @@ import { getAccessRequestUrl } from "@/lib/marketing/access-request";
 type AccessRequestFormProps = {
   actionUrl?: string;
 };
+
+function AuthLinks({ preface }: { preface: string }) {
+  return (
+    <p className="text-muted-foreground text-sm leading-relaxed">
+      {preface}{" "}
+      <Link href="/login" className="text-foreground underline-offset-4 hover:underline">
+        Sign in
+      </Link>
+      {" · "}
+      <Link href="/signup" className="text-foreground underline-offset-4 hover:underline">
+        Create account
+      </Link>
+    </p>
+  );
+}
 
 export function AccessRequestForm({
   actionUrl = getAccessRequestUrl(),
@@ -47,46 +63,53 @@ export function AccessRequestForm({
 
   if (sent) {
     return (
-      <p className="text-sm leading-relaxed" role="status">
-        Thanks — your request is in. Someone will follow up when a spot is available.
-      </p>
+      <div className="space-y-2" role="status">
+        <p className="text-sm leading-relaxed">
+          Thanks — your request is in. Someone will follow up when a spot is available.
+        </p>
+        <AuthLinks preface="Already invited, or ready to continue?" />
+      </div>
     );
   }
 
   return (
-    <form method="POST" action={actionUrl} onSubmit={handleSubmit} className="space-y-3">
-      <div className="space-y-2">
-        <Label htmlFor="access-name">Name</Label>
-        <Input id="access-name" name="name" autoComplete="name" required />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="access-email">Email</Label>
-        <Input
-          id="access-email"
-          name="email"
-          type="email"
-          autoComplete="email"
-          required
-        />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="access-note">Anything to share (optional)</Label>
-        <textarea
-          id="access-note"
-          name="message"
-          rows={3}
-          className="border-input bg-transparent placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 w-full min-w-0 rounded-lg border px-2.5 py-2 text-sm outline-none focus-visible:ring-3"
-          placeholder="A short note is fine."
-        />
-      </div>
-      {error ? (
-        <p className="text-destructive text-sm" role="alert">
-          {error}
-        </p>
-      ) : null}
-      <Button type="submit" className="min-h-11 w-full font-normal" disabled={pending}>
-        {pending ? "Sending…" : "Request access"}
-      </Button>
-    </form>
+    <div className="space-y-4">
+      <form method="POST" action={actionUrl} onSubmit={handleSubmit} className="space-y-3">
+        <div className="space-y-2">
+          <Label htmlFor="access-name">Name</Label>
+          <Input id="access-name" name="name" autoComplete="name" required />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="access-email">Email</Label>
+          <Input
+            id="access-email"
+            name="email"
+            type="email"
+            autoComplete="email"
+            required
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="access-note">Anything to share (optional)</Label>
+          <textarea
+            id="access-note"
+            name="message"
+            rows={3}
+            className="border-input bg-transparent placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 w-full min-w-0 rounded-lg border px-2.5 py-2 text-sm outline-none focus-visible:ring-3"
+            placeholder="A short note is fine."
+          />
+        </div>
+        {error ? (
+          <p className="text-destructive text-sm" role="alert">
+            {error}
+          </p>
+        ) : null}
+        <Button type="submit" className="min-h-11 w-full font-normal" disabled={pending}>
+          {pending ? "Sending…" : "Request access"}
+        </Button>
+      </form>
+
+      <AuthLinks preface="Already submitted your request?" />
+    </div>
   );
 }
