@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AccessRequestForm } from "@/components/marketing/access-request-form";
+import { DataPrivacyAccordion } from "@/components/marketing/data-privacy-accordion";
 import { HowItWorksAccordion } from "@/components/marketing/how-it-works-accordion";
 import { ThemeToggle } from "@/components/settings/theme-toggle";
 import { buttonVariants } from "@/components/ui/button";
@@ -24,32 +25,29 @@ export default function HowItWorksPage() {
 
         <HowItWorksAccordion />
 
-        <section
-          id="request-access"
-          className="border-border/60 space-y-3 rounded-lg border bg-card px-4 py-4"
-        >
-          <h2 className="text-sm font-medium">Want access?</h2>
-          <p className="text-muted-foreground text-sm leading-relaxed">
-            This is a private app. If you&apos;d like to use it, submit a short request —
-            someone will follow up when a spot is available.
+        <AccessRequestForm />
+
+        <section className="space-y-3">
+          <p className="text-muted-foreground text-center text-sm leading-relaxed">
+            Already invited, or already submitted your request?
           </p>
-          <AccessRequestForm />
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <Link
+              href="/login"
+              className={cn(buttonVariants({ variant: "outline" }), "min-h-11 flex-1 font-normal")}
+            >
+              Sign in
+            </Link>
+            <Link
+              href="/signup"
+              className={cn(buttonVariants({ variant: "ghost" }), "min-h-11 flex-1 font-normal")}
+            >
+              Create account
+            </Link>
+          </div>
         </section>
 
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <Link
-            href="/login"
-            className={cn(buttonVariants({ variant: "outline" }), "min-h-11 flex-1 font-normal")}
-          >
-            Sign in
-          </Link>
-          <Link
-            href="/signup"
-            className={cn(buttonVariants({ variant: "ghost" }), "min-h-11 flex-1 font-normal")}
-          >
-            Create account
-          </Link>
-        </div>
+        <DataPrivacyAccordion />
       </div>
     </div>
   );

@@ -20,6 +20,9 @@ Full UI spec: `docs/ui-ux-spec.md`. Visual system: `frontend-design.mdc`.
 - Allowed phrasing: "possible pattern", "watch this", "collecting data", "no
   reliable association yet". Forbidden: "diagnosis", "causal", "proven", or
   "improving/declining" used as a verdict.
+- Method framing (when explaining insights): not machine learning / not AI;
+  fixed lagged statistical associations. Never imply an LLM or open correlation
+  search decides what counts as a pattern.
 - Calm, non-clinical, non-gamified. No streaks, no goals, no "crush it" framing.
 - Never suggest increasing activity. Where relevant, support pacing /
   energy-envelope framing instead.

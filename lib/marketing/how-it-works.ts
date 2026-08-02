@@ -29,7 +29,7 @@ export const HOW_IT_WORKS_SECTIONS: HowToSection[] = [
       },
       {
         type: "paragraph",
-        text: "Over time, statistics look for possible patterns in your own data — associations to watch, never diagnoses or proof of cause.",
+        text: "Over time it may surface possible patterns in your own data — associations to watch, never diagnoses or proof of cause. That uses ordinary lagged statistics on a fixed list of questions, not machine learning or AI.",
       },
     ],
   },
@@ -74,6 +74,10 @@ export const HOW_IT_WORKS_SECTIONS: HowToSection[] = [
       {
         type: "paragraph",
         text: 'Once there\'s enough history, it may surface leads like "busy days tend to be followed by lower energy." At first you\'ll see "collecting data" — that usually takes a few weeks.',
+      },
+      {
+        type: "paragraph",
+        text: "Method: not machine learning or AI. A small fixed set of next-day questions is tested with lagged statistical associations (yesterday → today), accounting for how you felt the day before — not simple same-day correlation, and not open-ended fishing for links.",
       },
       {
         type: "paragraph",

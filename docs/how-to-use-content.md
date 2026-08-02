@@ -15,8 +15,9 @@ Subtitle: *The basics, in a minute. Tap any topic.*
 A private place to notice how your days affect one another — how yesterday's
 activity, last night's sleep, and today's symptoms connect.
 
-Over time it looks for *possible patterns* in your own data. It doesn't diagnose
-anything, and it's just for you.
+Over time it looks for *possible patterns* in your own data using ordinary lagged
+statistics on a fixed list of questions — not machine learning or AI. It doesn't
+diagnose anything, and it's just for you.
 
 ### Your daily check-ins
 Two quick check-ins, about a minute total:
@@ -35,6 +36,11 @@ was. This is optional — the daily check-ins are the main thing.
 ### What it does with your data
 Once there's enough data, it surfaces possible patterns — like *"busy days tend
 to be followed by lower energy."*
+
+**Method:** not machine learning or AI. A small fixed set of next-day questions
+is tested with lagged statistical associations (yesterday → today), accounting
+for how you felt the day before — not simple same-day correlation, and not
+open-ended fishing for links.
 
 At first you'll see **"collecting data"** — that's normal; it usually takes a few
 weeks. Everything it shows is a lead to watch, never proof of cause, and it will

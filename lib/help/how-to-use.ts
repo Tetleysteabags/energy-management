@@ -39,7 +39,7 @@ export const HOW_TO_SECTIONS: HowToSection[] = [
       },
       {
         type: "paragraph",
-        text: "Over time it looks for possible patterns in your own data. It doesn't diagnose anything, and it's just for you.",
+        text: "Over time it looks for possible patterns in your own data using ordinary lagged statistics on a fixed list of questions — not machine learning or AI. It doesn't diagnose anything, and it's just for you.",
       },
     ],
   },
@@ -78,6 +78,10 @@ export const HOW_TO_SECTIONS: HowToSection[] = [
       {
         type: "paragraph",
         text: 'Once there\'s enough data, it surfaces possible patterns — like "busy days tend to be followed by lower energy."',
+      },
+      {
+        type: "paragraph",
+        text: "Method: not machine learning or AI. A small fixed set of next-day questions is tested with lagged statistical associations (yesterday → today), accounting for how you felt the day before — not simple same-day correlation, and not open-ended fishing for links.",
       },
       {
         type: "paragraph",
