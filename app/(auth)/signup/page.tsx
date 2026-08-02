@@ -99,7 +99,9 @@ export default function SignupPage() {
       <Card className="border-border/60 w-full max-w-sm shadow-none">
         <CardHeader>
           <CardTitle className="text-xl font-medium">Create account</CardTitle>
-          <CardDescription>One person, one account. Health data stays private.</CardDescription>
+          <CardDescription>
+            For people who already have an invite. One person, one account — health data stays private.
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <GoogleSignInButton label="Sign up with Google" />
@@ -157,21 +159,22 @@ export default function SignupPage() {
               Sign in
             </Link>
           </p>
-          <p className="text-muted-foreground text-center text-sm leading-relaxed">
-            Prefer to ask first?{" "}
-            <Link href="/how-it-works" className="text-foreground underline-offset-4 hover:underline">
-              How this works
-            </Link>
-            {" · "}
-            <Link
-              href="/how-it-works#request-access"
-              className="text-foreground underline-offset-4 hover:underline"
-            >
-              Request access
-            </Link>
-          </p>
         </CardContent>
       </Card>
+
+      <p className="text-muted-foreground mt-4 max-w-sm text-center text-sm leading-relaxed">
+        New here?{" "}
+        <Link href="/how-it-works" className="text-foreground underline-offset-4 hover:underline">
+          How this works
+        </Link>
+        {" · "}
+        <Link
+          href="/how-it-works#request-access"
+          className="text-foreground underline-offset-4 hover:underline"
+        >
+          Request access
+        </Link>
+      </p>
     </div>
   );
 }

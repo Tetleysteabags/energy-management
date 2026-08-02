@@ -159,15 +159,8 @@ function LoginForm() {
               {pending ? "Signing in…" : "Sign in"}
             </Button>
           </form>
-          <p className="text-muted-foreground mt-4 text-center text-sm">
-            No account yet?{" "}
-            <Link
-              href="/how-it-works#request-access"
-              className="text-foreground underline-offset-4 hover:underline"
-            >
-              Request access
-            </Link>
-            {" · "}
+          <p className="text-muted-foreground mt-4 text-center text-sm leading-relaxed">
+            Already invited?{" "}
             <Link href="/signup" className="text-foreground underline-offset-4 hover:underline">
               Create account
             </Link>
