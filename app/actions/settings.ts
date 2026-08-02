@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { previewCrashRule } from "@/lib/crashes/rules";
 import { dailyLogToCrashPreview, rowsToCrashPreviewRecords } from "@/lib/analysis/day-record";
+import { todayLogDate } from "@/lib/check-in/log-date";
+import { getUserTimeZone } from "@/lib/check-in/timezone";
 
 type ActionResult = { error?: string; previewCount?: number };
 
@@ -25,7 +27,7 @@ export async function updateCrashRule({
 
   const { error } = await supabase.from("crash_rule_versions").insert({
     user_id: user.id,
-    active_from: new Date().toISOString().slice(0, 10),
+    active_from: todayLogDate(await getUserTimeZone()),
     match_mode: matchMode,
     pem_threshold: pemThreshold,
     capacity_threshold: capacityThreshold,

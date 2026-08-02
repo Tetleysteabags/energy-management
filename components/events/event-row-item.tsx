@@ -1,10 +1,11 @@
 "use client";
 
 import { EventTimeEditor } from "@/components/events/event-time-editor";
-import { LocalTime, LocalTimeRange } from "@/components/ui/local-time";
 import {
   eventHasDuration,
   formatEventDuration,
+  formatEventTime,
+  formatEventTimeRange,
   QUICK_EVENT_TYPES,
   type EventRow,
 } from "@/lib/events/types";
@@ -15,6 +16,7 @@ export function EventRowItem({
   disabled,
   showPresets,
   showTime = true,
+  timeZone,
   onEditDuration,
   onClosePresets,
   onTimesSave,
@@ -23,6 +25,8 @@ export function EventRowItem({
   event: EventRow;
   disabled: boolean;
   showPresets: boolean;
+  /** The user's zone, so the server and browser render the same clock time. */
+  timeZone: string;
   /** Show the time of day (true on the home Today card and per-day history). */
   showTime?: boolean;
   onEditDuration: () => void;
@@ -57,11 +61,9 @@ export function EventRowItem({
           </p>
           {showTime ? (
             <p className="text-muted-foreground text-xs">
-              {hasDuration ? (
-                <LocalTimeRange occurredAt={event.occurred_at} durationMinutes={minutes} />
-              ) : (
-                <LocalTime iso={event.occurred_at} />
-              )}
+              {hasDuration
+                ? formatEventTimeRange(event.occurred_at, minutes, timeZone)
+                : formatEventTime(event.occurred_at, timeZone)}
             </p>
           ) : null}
           {event.note ? (

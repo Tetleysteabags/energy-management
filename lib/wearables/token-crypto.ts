@@ -7,12 +7,50 @@ export type StoredWearableTokens = {
   scope?: string;
 };
 
+/** Long enough that a hand-typed value can't be trivially brute-forced. */
+const MIN_SECRET_LENGTH = 32;
+
+/**
+ * The key is derived from a secret that exists only for this purpose.
+ *
+ * It used to fall back to SUPABASE_SERVICE_ROLE_KEY, which tied every stored
+ * refresh token to a credential you would want to rotate — and rotating it
+ * would have silently made all of them undecryptable, breaking wearable sync
+ * with no obvious cause. Requiring a dedicated secret keeps the two lifecycles
+ * apart.
+ */
 function encryptionKey(): Buffer {
-  const secret = process.env.WEARABLE_TOKEN_SECRET ?? process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const secret = process.env.WEARABLE_TOKEN_SECRET;
+
   if (!secret) {
-    throw new Error("WEARABLE_TOKEN_SECRET or SUPABASE_SERVICE_ROLE_KEY is required to store wearable tokens.");
+    throw new Error(
+      "WEARABLE_TOKEN_SECRET is required to store wearable tokens. Generate one with `openssl rand -base64 32` and set it in Vercel — see docs/supabase-setup.md.",
+    );
   }
+
+  if (secret.length < MIN_SECRET_LENGTH) {
+    throw new Error(
+      `WEARABLE_TOKEN_SECRET must be at least ${MIN_SECRET_LENGTH} characters. Generate one with \`openssl rand -base64 32\`.`,
+    );
+  }
+
+  if (secret === process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error(
+      "WEARABLE_TOKEN_SECRET must not reuse SUPABASE_SERVICE_ROLE_KEY — rotating that key would make every stored wearable token undecryptable.",
+    );
+  }
+
   return scryptSync(secret, "wearable-token-v1", 32);
+}
+
+/** Lets the wearables UI warn about missing configuration before a user hits it. */
+export function isWearableTokenSecretConfigured(): boolean {
+  const secret = process.env.WEARABLE_TOKEN_SECRET;
+  return (
+    typeof secret === "string" &&
+    secret.length >= MIN_SECRET_LENGTH &&
+    secret !== process.env.SUPABASE_SERVICE_ROLE_KEY
+  );
 }
 
 export function encryptTokenPayload(payload: StoredWearableTokens): string {

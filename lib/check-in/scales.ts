@@ -54,3 +54,6 @@ export const LOAD_OPTIONS = [
 ] as const;
 
 export const BASELINE_TARGET_DAYS = 28;
+
+/** Cap on the free-text note, enforced on the server as well as in the textarea. */
+export const MAX_NOTES_LENGTH = 2000;

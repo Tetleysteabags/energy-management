@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { addSupplement, saveSupplementIntake } from "@/app/actions/supplements";
 import type { SupplementIntake } from "@/lib/supplements/queries";
@@ -20,11 +20,6 @@ export function SupplementsCard({ logDate, intake: initialIntake }: SupplementsC
   const [newName, setNewName] = useState("");
   const [pending, startTransition] = useTransition();
   const [, startUiTransition] = useTransition();
-
-  useEffect(() => {
-    setIntake(initialIntake);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- only reset when the day changes
-  }, [logDate]);
 
   function persist(next: SupplementIntake[]) {
     setIntake(next);

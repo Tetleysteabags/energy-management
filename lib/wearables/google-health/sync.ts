@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { WearableErrorCode } from "@/lib/wearables/errors";
 import {
   fetchActiveMinutesForDay,
   fetchOvernightHrv,
@@ -18,7 +19,7 @@ import {
 
 type SyncResult = {
   metrics: WearableMetricSnapshot;
-  error?: string;
+  error?: WearableErrorCode;
   warnings?: string[];
 };
 
@@ -30,7 +31,7 @@ export type GoogleHealthDaySync = {
 export type GoogleHealthGlanceSync = {
   today: GoogleHealthDaySync;
   yesterday: GoogleHealthDaySync;
-  error?: string;
+  error?: WearableErrorCode;
   warnings: string[];
 };
 
@@ -74,12 +75,10 @@ async function persistTokens(
 async function resolveAccessToken(
   supabase: SupabaseClient,
   userId: string,
-): Promise<{ accessToken: string } | { error: string }> {
+): Promise<{ accessToken: string } | { error: WearableErrorCode }> {
   const existing = await loadTokens(supabase, userId);
   if (!existing) {
-    return {
-      error: "Google Health is not connected. Tap Connect and approve read-only access.",
-    };
+    return { error: "google_not_connected" };
   }
 
   try {
@@ -88,17 +87,14 @@ async function resolveAccessToken(
       await persistTokens(supabase, userId, tokens);
     }
     return { accessToken: tokens.access_token };
-  } catch (error) {
+  } catch {
     await supabase
       .from("wearable_connections")
       .update({ status: "stale" })
       .eq("user_id", userId)
       .eq("provider", "google_health");
 
-    return {
-      error:
-        error instanceof Error ? error.message : "Token refresh failed — reconnect Google Health.",
-    };
+    return { error: "google_token_refresh" };
   }
 }
 

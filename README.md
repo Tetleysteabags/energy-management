@@ -2,7 +2,7 @@
 
 A personal pacing and symptom-pattern tracker for people managing energy-limiting chronic conditions, built with Next.js and Supabase. Live at https://energy-management-nine.vercel.app.
 
-Currently accounts are limited as I am testing this out with my wife who has chronic fatigue as a result of long covid.
+Accounts are invite-only. It started as something I built for my wife, who has chronic fatigue following long covid, and is now shared with a small number of people at a time.
 
 ## What it does
 
@@ -18,7 +18,9 @@ Backend/data: Supabase (Postgres + auth) accessed via Drizzle ORM and the `postg
 
 Analysis engine: lib/analysis/ contains the pacing and correlation logic (pacing.ts, analysis-engine.ts, patient-summary.ts), with its own test suite (npm run test:engine) and a synthetic data generator for local development without real health data.
 
-Wearable sync: Google Health OAuth integration for Fitbit/Pixel Watch data (see docs/supabase-setup.md).
+Wearable sync: Google Health OAuth integration for Fitbit/Pixel Watch data (see docs/supabase-setup.md). Refresh tokens are encrypted at rest with AES-256-GCM.
+
+Privacy and access: every table is protected by row-level security scoped to the owning user, and every query filters on user id as well. Users can export all their check-ins as CSV and delete their account and data from Settings. See docs/pre-launch-audit.md for the full review, and docs/supabase-setup.md for the setup that invite-only access depends on.
 
 ## Local development
 
@@ -27,7 +29,10 @@ npm install
 npm run dev          # start dev server
 npm run build        # production build
 npm start            # run production build
-npm run test:engine  # run the analysis engine test suite
+npm test             # run every test suite
+npm run test:engine  # analysis engine
+npm run test:dates   # log-date / timezone handling
+npm run test:csv     # CSV import and export
 npm run seed:demo    # seed synthetic demo data
 npm run db:migrate   # apply Supabase migrations
 ```

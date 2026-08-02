@@ -7,7 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "npm run test:engine && npm run test:dates && npm run test:csv",
     "test:engine": "tsx lib/analysis/analysis-engine.test.ts",
+    "test:dates": "tsx lib/check-in/log-date.test.ts",
+    "test:csv": "tsx lib/csv/csv.test.ts",
     "seed:demo": "tsx scripts/seed-demo.ts",
     "db:check": "tsx scripts/check-supabase.ts",
     "db:migrate": "tsx scripts/apply-migrations.ts"

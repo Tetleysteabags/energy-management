@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { isToday, middayIsoForLogDate } from "@/lib/check-in/log-date";
+import { getUserTimeZone } from "@/lib/check-in/timezone";
 import { DEFAULT_EVENT_DURATION } from "@/lib/events/types";
 
 type ActionResult = { error?: string; id?: string };
@@ -32,9 +33,10 @@ export async function addQuickEvent({
 
   if (!user) return { error: "You need to be signed in." };
 
+  const timeZone = await getUserTimeZone();
   const defaultOccurredAt =
-    logDate && !isToday(logDate)
-      ? middayIsoForLogDate(logDate)
+    logDate && !isToday(logDate, timeZone)
+      ? middayIsoForLogDate(logDate, timeZone)
       : new Date().toISOString();
 
   const { data, error } = await supabase

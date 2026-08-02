@@ -1,11 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
 import { greetingForHour } from "@/lib/check-in/greeting";
 import {
+  hourInTimeZone,
   isToday,
   todayLogDate,
   yesterdayLogDate,
 } from "@/lib/check-in/log-date";
 import { BASELINE_TARGET_DAYS } from "@/lib/check-in/scales";
+import { getUserTimeZone } from "@/lib/check-in/timezone";
 
 export { todayLogDate, yesterdayLogDate } from "@/lib/check-in/log-date";
 import {
@@ -160,7 +162,7 @@ function eveningInitial(todayRow: DailyLogRow | null, yesterdayRow: DailyLogRow 
   };
 }
 
-export async function getCheckInContext(logDate = todayLogDate()) {
+export async function getCheckInContext(logDate?: string) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -170,6 +172,8 @@ export async function getCheckInContext(logDate = todayLogDate()) {
     return null;
   }
 
+  const timeZone = await getUserTimeZone();
+  logDate ??= todayLogDate(timeZone);
   const yesterday = yesterdayLogDate(logDate);
 
   const [{ data: rows }, { data: settings }] = await Promise.all([
@@ -186,6 +190,7 @@ export async function getCheckInContext(logDate = todayLogDate()) {
 
   return {
     logDate,
+    timeZone,
     trackCycle: settings?.track_cycle ?? false,
     today: {
       morning: morningInitial(todayRow, yesterdayRow),
@@ -206,7 +211,7 @@ export async function getCheckInContext(logDate = todayLogDate()) {
 
 export type CheckInContext = NonNullable<Awaited<ReturnType<typeof getCheckInContext>>>;
 
-export async function getHomeState(logDate = todayLogDate()) {
+export async function getHomeState(logDate?: string) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -216,7 +221,9 @@ export async function getHomeState(logDate = todayLogDate()) {
     return null;
   }
 
-  const viewingToday = isToday(logDate);
+  const timeZone = await getUserTimeZone();
+  logDate ??= todayLogDate(timeZone);
+  const viewingToday = isToday(logDate, timeZone);
   const yesterday = yesterdayLogDate(logDate);
 
   const [{ data: rows }, { data: settings }] = await Promise.all([
@@ -245,9 +252,10 @@ export async function getHomeState(logDate = todayLogDate()) {
 
   return {
     logDate,
+    timeZone,
     viewingToday,
     trackCycle: settings?.track_cycle ?? false,
-    greeting: greetingForHour(),
+    greeting: greetingForHour(hourInTimeZone(new Date(), timeZone)),
     due: dueCheckIn(morningDone, eveningDone),
     morningDone,
     eveningDone,

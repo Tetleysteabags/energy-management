@@ -19,12 +19,28 @@ export async function saveSupplementIntake({
 
   if (!user) return { error: "You need to be signed in." };
 
-  const rows = intake.map((item) => ({
-    user_id: user.id,
-    log_date: logDate,
-    supplement_id: item.supplementId,
-    taken: item.taken,
-  }));
+  if (!intake.length) return {};
+
+  // supplement_id arrives from the client, and RLS on this table only checks
+  // user_id — so confirm each one is actually theirs. Unknown ids are dropped
+  // rather than rejected: the usual cause is a stale page after a removal.
+  const { data: owned } = await supabase
+    .from("supplements")
+    .select("id")
+    .eq("user_id", user.id)
+    .in("id", [...new Set(intake.map((item) => item.supplementId))]);
+
+  const ownedIds = new Set((owned ?? []).map((row) => row.id));
+  const rows = intake
+    .filter((item) => ownedIds.has(item.supplementId))
+    .map((item) => ({
+      user_id: user.id,
+      log_date: logDate,
+      supplement_id: item.supplementId,
+      taken: item.taken,
+    }));
+
+  if (!rows.length) return {};
 
   const { error } = await supabase.from("daily_supplement_intake").upsert(rows, {
     onConflict: "user_id,log_date,supplement_id",

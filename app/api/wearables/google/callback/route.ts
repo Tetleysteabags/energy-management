@@ -3,7 +3,7 @@ import { createServerClient } from "@supabase/ssr";
 import { exchangeGoogleHealthCode } from "@/lib/wearables/google-health/oauth";
 import { encryptTokenPayload } from "@/lib/wearables/token-crypto";
 import { syncGoogleHealthGlance } from "@/lib/wearables/google-health/sync";
-import { yesterdayLogDate } from "@/lib/check-in/queries";
+import { todayLogDate, yesterdayLogDate } from "@/lib/check-in/log-date";
 import { wearableSnapshotToDbRow } from "@/lib/wearables/types";
 
 const STATE_COOKIE = "gh_oauth_state";
@@ -74,7 +74,13 @@ export async function GET(request: NextRequest) {
       return failure("save_failed");
     }
 
-    const logDate = new Date().toISOString().slice(0, 10);
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("timezone")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    const logDate = todayLogDate(profile?.timezone);
     const yesterday = yesterdayLogDate(logDate);
     const sync = await syncGoogleHealthGlance(supabase, user.id, logDate, yesterday);
 

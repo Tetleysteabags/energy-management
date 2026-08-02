@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -19,13 +20,20 @@ export const metadata: Metadata = {
 
 // Applies the saved theme before paint to avoid a flash of the wrong colours.
 // Marketing intro stays light so first impressions stay calm and readable.
-const themeInitScript = `(function(){try{var p=location.pathname||"";if(p==="/how-it-works"||p.indexOf("/how-it-works/")===0){document.documentElement.classList.remove("dark");return;}var t=localStorage.getItem("theme")||"system";var d=t==="dark"||(t==="system"&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.classList.toggle("dark",d);}catch(e){}})();`;
+const LIGHT_ONLY_PATHS = ["/how-it-works", "/privacy"];
 
-export default function RootLayout({
+const themeInitScript = `(function(){try{var p=location.pathname||"";var l=${JSON.stringify(
+  LIGHT_ONLY_PATHS,
+)};for(var i=0;i<l.length;i++){if(p===l[i]||p.indexOf(l[i]+"/")===0){document.documentElement.classList.remove("dark");return;}}var t=localStorage.getItem("theme")||"system";var d=t==="dark"||(t==="system"&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.classList.toggle("dark",d);}catch(e){}})();`;
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Set by middleware; the inline theme script needs it to satisfy the CSP.
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
+
   return (
     <html
       lang="en"
@@ -33,7 +41,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <script nonce={nonce} dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

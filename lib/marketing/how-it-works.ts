@@ -4,7 +4,6 @@ import {
   CalendarCheck,
   HeartPulse,
   Sparkles,
-  type LucideIcon,
 } from "lucide-react";
 import type { HowToSection } from "@/lib/help/how-to-use";
 

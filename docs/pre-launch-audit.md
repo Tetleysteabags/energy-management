@@ -2,6 +2,11 @@
 
 Audit date: 2026-08-01. Commit audited: `ceac92b`.
 
+**Status: all findings addressed in code.** See [Resolution](#resolution) for what
+changed and, importantly, for the four items that still need a hand on the
+Supabase and Vercel dashboards — the code cannot do those, and two of them are
+what actually keeps sign-up closed.
+
 Scope: application code, data model and RLS, authentication, third-party data
 flows, and the operational/legal gaps that only appear once someone other than
 the author's household is using the app.
@@ -317,3 +322,61 @@ Worth recording, because it is the part that would be expensive to retrofit:
 Findings 2 and 4 interact usefully: if you invite users via Supabase and they
 sign in with Google, password reset matters less on day one — but it will matter
 the first time someone signs up with an email and password.
+
+
+---
+
+## Resolution
+
+Every finding below was fixed on the `claude/pre-launch-security-audit-175esi`
+branch. Verification after the changes: build passes, `tsc --noEmit` clean,
+`eslint .` clean (was 10 errors, 4 warnings), and 113 tests pass across three
+suites — the 16 frozen engine tests plus 38 new date/timezone tests and 59 new
+CSV tests.
+
+| # | Finding | What changed |
+| --- | --- | --- |
+| 1 | Log dates computed in UTC | `lib/check-in/log-date.ts` rebuilt around the user's IANA zone; `profiles.timezone` is now read at runtime and filled in from the browser by `TimeZoneSync`. Threaded through every server and client caller. Also fixed the same bug in event grouping, the capacity heatmap grid, and the greeting. |
+| 2 | No password reset | `/forgot-password` and `/reset-password`, a link on the sign-in form, and recovery-aware error routing in the auth callback. |
+| 3 | No deletion, no privacy policy | `delete_own_account()` (security definer, can only ever act on `auth.uid()`), a delete flow at `/settings/account` with typed confirmation, and the missing `DELETE`/`UPDATE` policies. `/privacy` covers collection, basis, retention and rights. |
+| 4 | Open sign-up | `/signup` now requires an invite code and fails closed when none is configured. **The real enforcement is the Supabase dashboard toggle** — see below. |
+| 5 | Broken CSV export | `lib/csv/format.ts` quotes unconditionally, escapes quotes, preserves newlines, defuses formula leads, and writes a UTF-8 BOM. Export widened to every check-in column so it doubles as the data-portability download. |
+| 6 | LLM tagging advertised but unbuilt | Hidden outside development; the page now says plainly that nothing reads notes and they go to no outside service. |
+| 7 | Raw internal errors shown to users | `lib/wearables/errors.ts` — failures travel as codes, and an unknown code falls back to a generic message rather than echoing upstream text. |
+| 8 | Supplement intake accepted foreign ids | Ownership verified in the action, and the RLS `WITH CHECK` now requires the supplement to belong to the caller. |
+| 9 | Token key fell back to the service-role key | `WEARABLE_TOKEN_SECRET` is now required, must be ≥32 chars, and is rejected if it equals the service-role key. The Connect button hides when it is unset. |
+| — | No CSP or security headers | Nonce-based CSP in middleware (verified end to end against a running build) plus static headers in `next.config.ts`. Signed-in pages are `noindex`; the two public pages opt back in. |
+| — | CSV import had no validation | Real RFC 4180 parser; per-row errors with line numbers instead of one raw Postgres failure; row cap; round-trip tested against the export. |
+| — | Notes limit was client-side only | Enforced in the server action, sharing one constant with the textarea and the importer. |
+| — | 10 ESLint errors | Fixed at the source rather than suppressed — redundant reset effects deleted (parents already remount via `key`), `localStorage` reads moved to `useSyncExternalStore`, `LocalTime` deleted in favour of zone-explicit formatting, `any` replaced in the engine test. |
+
+### Still needs doing by hand
+
+These are dashboard and environment changes this branch cannot make:
+
+1. **Disable public sign-ups in Supabase** (Authentication → Sign In / Providers).
+   The invite code is a UI gate only. Supabase's sign-up endpoint is reachable
+   directly with the public anon key, so until this toggle is off, anyone who
+   knows the project URL can still create an account. This is the single most
+   important remaining step.
+2. **Set `SIGNUP_INVITE_CODE`** in Vercel, or leave it unset and invite everyone
+   from the Supabase dashboard. Unset means `/signup` shows an invite-only
+   message and no form.
+3. **Set `WEARABLE_TOKEN_SECRET`** (`openssl rand -base64 32`). Do this before
+   anyone connects a wearable — tokens encrypted under the old service-key
+   fallback cannot be migrated.
+4. **Work through the dashboard checklist** in `docs/supabase-setup.md` §8:
+   EU region, email confirmation on, leaked-password protection, redirect
+   allowlist, backups, rate limits.
+
+### Deliberately not changed
+
+- **Error monitoring** — still absent. Worth adding before the user count grows
+  past the people who will text you when something breaks.
+- **`isoToTimeInputValue` / `timeInputToIso`** still use the browser's own zone.
+  That is correct for a time input the user is looking at, and it now agrees
+  with the stored profile zone because `TimeZoneSync` keeps them in step.
+- **Historical rows** were not migrated to the corrected timezone handling. The
+  existing data was logged from Cyprus, where UTC and local dates agree except
+  between midnight and 3am, so it is very nearly right — and a blind migration
+  would be more likely to damage it than fix it.

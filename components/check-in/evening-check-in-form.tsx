@@ -12,13 +12,20 @@ import { SliderField } from "@/components/check-in/slider-field";
 import { ToggleChip } from "@/components/check-in/toggle-chip";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { capacityWord, chestWord, muscleWord, symptomWord } from "@/lib/check-in/scales";
+import {
+  capacityWord,
+  chestWord,
+  MAX_NOTES_LENGTH,
+  muscleWord,
+  symptomWord,
+} from "@/lib/check-in/scales";
 import { formatLogDateLabel, homePathForLogDate, isToday } from "@/lib/check-in/log-date";
 import type { EveningCheckInValues } from "@/lib/check-in/types";
 import type { SupplementIntake } from "@/lib/supplements/queries";
 
 type EveningCheckInFormProps = {
   logDate: string;
+  timeZone: string;
   initialValues: EveningCheckInValues;
   yesterdayValues: EveningCheckInValues | null;
   hintValues: EveningCheckInValues | null;
@@ -29,6 +36,7 @@ type EveningCheckInFormProps = {
 
 export function EveningCheckInForm({
   logDate,
+  timeZone,
   initialValues,
   yesterdayValues,
   hintValues,
@@ -83,10 +91,10 @@ export function EveningCheckInForm({
     return (
       <div className="border-border/60 rounded-lg border bg-card px-4 py-8 text-center">
         <p className="text-sm font-medium">
-          {isToday(logDate) ? "Logged for today" : "Saved for this day"}
+          {isToday(logDate, timeZone) ? "Logged for today" : "Saved for this day"}
         </p>
         <p className="text-muted-foreground mt-1 text-sm">Evening check-in saved.</p>
-        <Button variant="ghost" className="mt-4" onClick={() => router.push(homePathForLogDate(logDate))}>
+        <Button variant="ghost" className="mt-4" onClick={() => router.push(homePathForLogDate(logDate, timeZone))}>
           Back to home
         </Button>
       </div>
@@ -97,7 +105,7 @@ export function EveningCheckInForm({
     <div className="space-y-6">
       <div className="space-y-1">
         <h1 className="text-xl font-medium">Evening check-in</h1>
-        {!isToday(logDate) ? (
+        {!isToday(logDate, timeZone) ? (
           <p className="text-muted-foreground text-sm">{formatLogDateLabel(logDate)}</p>
         ) : null}
         <p className="text-muted-foreground text-sm">Change only what&apos;s different.</p>
@@ -267,7 +275,7 @@ export function EveningCheckInForm({
             <textarea
               id="notes"
               rows={3}
-              maxLength={2000}
+              maxLength={MAX_NOTES_LENGTH}
               placeholder="Anything worth noting"
               className="border-input bg-background placeholder:text-muted-foreground focus-visible:ring-ring/50 w-full rounded-lg border px-3 py-2 text-sm focus-visible:ring-[3px] focus-visible:outline-none"
               value={values.notes}
@@ -294,7 +302,7 @@ export function EveningCheckInForm({
 
       {alreadySubmitted ? (
         <p className="text-muted-foreground text-xs">
-          {isToday(logDate)
+          {isToday(logDate, timeZone)
             ? "Updating today's evening entry."
             : `Updating evening entry for ${formatLogDateLabel(logDate)}.`}
         </p>

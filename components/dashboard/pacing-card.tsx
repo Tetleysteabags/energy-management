@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Info, X } from "lucide-react";
 import type { PacingNote } from "@/lib/analysis/pacing";
+import { useStoredValue } from "@/lib/hooks/use-stored-value";
 import { Button } from "@/components/ui/button";
 
 type PacingCardProps = {
@@ -12,30 +12,11 @@ type PacingCardProps = {
 };
 
 export function PacingCard({ note, dateKey }: PacingCardProps) {
-  const storageKey = `pacing-dismissed:${dateKey}`;
-  const [mounted, setMounted] = useState(false);
-  const [dismissed, setDismissed] = useState(false);
+  // Treated as dismissed during SSR, so the note never flashes in and back out
+  // for someone who already dismissed it today.
+  const [dismissed, setDismissed] = useStoredValue(`pacing-dismissed:${dateKey}`, "1");
 
-  useEffect(() => {
-    setMounted(true);
-    try {
-      setDismissed(window.localStorage.getItem(storageKey) === "1");
-    } catch {
-      // localStorage unavailable — show the note rather than hide it.
-    }
-  }, [storageKey]);
-
-  function dismiss() {
-    setDismissed(true);
-    try {
-      window.localStorage.setItem(storageKey, "1");
-    } catch {
-      // ignore persistence failures
-    }
-  }
-
-  // Gate on mount to avoid an SSR/client hydration mismatch on the stored flag.
-  if (!note || !mounted || dismissed) return null;
+  if (!note || dismissed === "1") return null;
 
   return (
     <div className="border-info/30 bg-info/10 flex items-start gap-3 rounded-lg border px-4 py-3">
@@ -47,7 +28,7 @@ export function PacingCard({ note, dateKey }: PacingCardProps) {
         size="icon-sm"
         aria-label="Dismiss"
         className="text-muted-foreground -mr-1 -mt-1 shrink-0"
-        onClick={dismiss}
+        onClick={() => setDismissed("1")}
       >
         <X className="size-4" aria-hidden />
       </Button>

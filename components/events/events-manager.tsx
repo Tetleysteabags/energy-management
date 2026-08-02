@@ -18,22 +18,25 @@ import {
 
 type EventsManagerProps = {
   events: EventRow[];
+  timeZone: string;
 };
 
 function formatDayHeading(day: string): string {
-  return new Date(`${day}T12:00:00`).toLocaleDateString(undefined, {
+  // Fixed to UTC so the heading names the day it was given, not a shifted one.
+  return new Date(`${day}T12:00:00Z`).toLocaleDateString(undefined, {
     weekday: "long",
     month: "short",
     day: "numeric",
+    timeZone: "UTC",
   });
 }
 
-export function EventsManager({ events }: EventsManagerProps) {
+export function EventsManager({ events, timeZone }: EventsManagerProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [durationEditId, setDurationEditId] = useState<string | null>(null);
 
-  const grouped = groupEventsByDay(events);
+  const grouped = groupEventsByDay(events, timeZone);
   const days = [...grouped.keys()].sort((a, b) => b.localeCompare(a));
 
   function refresh(action: () => Promise<unknown>, onDone?: () => void) {
@@ -67,6 +70,7 @@ export function EventsManager({ events }: EventsManagerProps) {
               <ul className="space-y-2">
                 {grouped.get(day)?.map((event) => (
                   <EventRowItem
+                    timeZone={timeZone}
                     key={event.id}
                     event={event}
                     disabled={pending}

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { EveningCheckInValues, MorningCheckInValues } from "@/lib/check-in/types";
+import { MAX_NOTES_LENGTH } from "@/lib/check-in/scales";
 
 type ActionResult = { error?: string };
 
@@ -13,6 +14,11 @@ function clampSymptom(value: number): number {
 
 function clampLoad(value: number): number {
   return Math.min(3, Math.max(0, Math.round(value)));
+}
+
+/** The textarea caps this too, but that limit is only a suggestion to the client. */
+function clampNotes(value: string): string | null {
+  return value.trim().slice(0, MAX_NOTES_LENGTH) || null;
 }
 
 export async function submitMorningCheckIn({
@@ -94,7 +100,7 @@ export async function submitEveningCheckIn({
     late_caffeine: values.lateCaffeine,
     late_meal: values.lateMeal,
     on_period: values.onPeriod,
-    notes: values.notes.trim() || null,
+    notes: clampNotes(values.notes),
     evening_submitted_at: new Date().toISOString(),
   };
 

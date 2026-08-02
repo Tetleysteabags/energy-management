@@ -14,6 +14,7 @@ import { buildPacingNote } from "@/lib/analysis/pacing";
 import { getAnalysisOutput } from "@/lib/analysis/queries";
 import { formatLogDateLabel, parseLogDateParam } from "@/lib/check-in/log-date";
 import { getHomeState } from "@/lib/check-in/queries";
+import { getUserTimeZone } from "@/lib/check-in/timezone";
 import { getEventsForDate } from "@/lib/events/queries";
 import { DEFAULT_EVENT_DURATION, type EventRow } from "@/lib/events/types";
 import { getSupplementIntakeForDate } from "@/lib/supplements/queries";
@@ -49,7 +50,8 @@ type HomePageProps = {
 
 export default async function HomePage({ searchParams }: HomePageProps) {
   const params = await searchParams;
-  const logDate = parseLogDateParam(params.date);
+  const timeZone = await getUserTimeZone();
+  const logDate = parseLogDateParam(params.date, timeZone);
   const state = await getHomeState(logDate);
 
   if (!state) {
@@ -82,7 +84,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   return (
     <div className="space-y-6">
       <Suspense fallback={null}>
-        <LogDatePicker logDate={state.logDate} />
+        <LogDatePicker logDate={state.logDate} timeZone={state.timeZone} />
       </Suspense>
 
       <section className="space-y-1">
@@ -100,6 +102,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       <TodayEventsCard
         events={events}
         logDate={state.logDate}
+        timeZone={state.timeZone}
         viewingToday={state.viewingToday}
       />
 

@@ -26,7 +26,7 @@ export default function HowItWorksPage() {
           <h2 className="text-sm font-medium">Want access?</h2>
           <p className="text-muted-foreground text-sm leading-relaxed">
             This is a private app. If you&apos;d like to use it, submit a short request —
-            someone will follow up when a spot is available.
+            someone will follow up with an invite code when a spot is available.
           </p>
           <AccessRequestForm />
         </section>
@@ -42,12 +42,20 @@ export default function HowItWorksPage() {
             href="/signup"
             className={cn(buttonVariants({ variant: "ghost" }), "min-h-11 flex-1 font-normal")}
           >
-            Create account
+            I have an invite code
           </Link>
         </div>
 
         <p className="text-muted-foreground text-center text-xs leading-relaxed">
           Already invited? Sign in above. New accounts may need confirmation before they work.
+        </p>
+
+        <p className="text-muted-foreground text-center text-xs leading-relaxed">
+          This is a personal logging tool, not a medical device — the patterns it finds are
+          associations in your own data, not diagnosis or treatment advice.{" "}
+          <Link href="/privacy" className="text-foreground underline-offset-4 hover:underline">
+            Privacy notice
+          </Link>
         </p>
       </div>
     </div>

@@ -13,6 +13,8 @@ export default async function NotesSettingsPage() {
 
   if (!user) redirect("/login");
 
+  const isDevelopment = process.env.NODE_ENV === "development";
+
   const { data: settings } = await supabase
     .from("user_settings")
     .select("llm_notes_enabled")
@@ -38,11 +40,22 @@ export default async function NotesSettingsPage() {
         </p>
       </div>
 
-      <form action={toggleLlmNotes.bind(null, settings?.llm_notes_enabled ?? false)}>
-        <Button type="submit" variant="outline" className="w-full">
-          {settings?.llm_notes_enabled ? "Disable" : "Enable"} LLM note tagging
-        </Button>
-      </form>
+      <div className="border-border/60 space-y-2 rounded-lg border px-4 py-4">
+        <p className="text-sm font-medium">Not built yet</p>
+        <p className="text-muted-foreground text-sm leading-relaxed">
+          The idea is that your notes could be read for recurring themes and offered back as tags
+          you confirm or reject. Nothing does that today — your notes are stored and shown back to
+          you, and are not sent to any language model or outside service.
+        </p>
+      </div>
+
+      {isDevelopment ? (
+        <form action={toggleLlmNotes.bind(null, settings?.llm_notes_enabled ?? false)}>
+          <Button type="submit" variant="outline" className="w-full">
+            {settings?.llm_notes_enabled ? "Disable" : "Enable"} the flag (dev only — nothing reads it)
+          </Button>
+        </form>
+      ) : null}
 
       {tags?.length ? (
         <ul className="space-y-2">

@@ -6,10 +6,15 @@ import { createClient } from "@/lib/supabase/server";
 
 const LINKS = [
   { href: "/settings/crash-rule", label: "Crash rule", hint: "Versioned, plain-language" },
-  { href: "/settings/notes", label: "Notes tagging", hint: "LLM opt-in, default off" },
+  // Notes tagging is not built yet — see /settings/notes. Shown in development
+  // only so the page stays reachable while it is worked on.
+  ...(process.env.NODE_ENV === "development"
+    ? [{ href: "/settings/notes", label: "Notes tagging", hint: "Not built yet (dev only)" }]
+    : []),
   { href: "/wearables", label: "Wearables", hint: "Connect or sync" },
   { href: "/import", label: "Import CSV", hint: "Bring in past logs" },
   { href: "/settings/supplements", label: "Supplements", hint: "Manage your stack" },
+  { href: "/settings/account", label: "Your account & data", hint: "Download or delete everything" },
 ];
 
 export default async function SettingsPage() {

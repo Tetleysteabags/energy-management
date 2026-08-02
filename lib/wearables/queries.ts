@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
+import { addDaysToLogDate } from "@/lib/check-in/log-date";
 import { todayLogDate, yesterdayLogDate } from "@/lib/check-in/queries";
+import { getUserTimeZone } from "@/lib/check-in/timezone";
 
 export type WearableGlance = {
   lastNightDate: string;
@@ -51,7 +53,7 @@ function buildNote(
  * See docs/ui-ux-spec.md § Wearable timing convention.
  */
 export async function getWearableGlance(
-  today = todayLogDate(),
+  today?: string,
 ): Promise<WearableGlance | null> {
   const supabase = await createClient();
   const {
@@ -60,6 +62,7 @@ export async function getWearableGlance(
 
   if (!user) return null;
 
+  today ??= todayLogDate(await getUserTimeZone());
   const yesterday = yesterdayLogDate(today);
 
   const [{ data: lastNightRow }, { data: yesterdayRow }] = await Promise.all([
@@ -83,9 +86,7 @@ export async function getWearableGlance(
       .maybeSingle(),
   ]);
 
-  const lookbackStart = new Date(`${today}T12:00:00`);
-  lookbackStart.setDate(lookbackStart.getDate() - 21);
-  const lookbackIso = lookbackStart.toISOString().slice(0, 10);
+  const lookbackIso = addDaysToLogDate(today, -21);
 
   const { data: recentRows } = await supabase
     .from("wearable_daily_metrics")

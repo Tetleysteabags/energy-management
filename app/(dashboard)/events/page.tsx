@@ -1,9 +1,10 @@
 import { redirect } from "next/navigation";
 import { EventsManager } from "@/components/events/events-manager";
 import { getRecentEvents } from "@/lib/events/queries";
+import { getUserTimeZone } from "@/lib/check-in/timezone";
 
 export default async function EventsPage() {
-  const events = await getRecentEvents();
+  const [events, timeZone] = await Promise.all([getRecentEvents(), getUserTimeZone()]);
 
   if (!events) {
     redirect("/login");
@@ -16,7 +17,7 @@ export default async function EventsPage() {
         <p className="text-muted-foreground text-sm">Optional — a tap each, when you want to.</p>
       </div>
 
-      <EventsManager events={events} />
+      <EventsManager events={events} timeZone={timeZone} />
     </div>
   );
 }

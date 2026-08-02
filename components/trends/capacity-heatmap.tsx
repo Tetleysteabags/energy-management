@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { memo, useMemo, useState, useTransition } from "react";
+import { addDaysToLogDate } from "@/lib/check-in/log-date";
 import { capacityColor, formatDaySummary } from "@/lib/trends/capacity";
 import type { TrendDay } from "@/lib/trends/queries";
 import { cn } from "@/lib/utils";
@@ -12,12 +13,13 @@ type CapacityHeatmapProps = {
   days: TrendDay[];
 };
 
-function startOfWeek(date: Date): Date {
-  const day = date.getDay();
-  const diff = day === 0 ? -6 : 1 - day;
-  const result = new Date(date);
-  result.setDate(result.getDate() + diff);
-  return result;
+/**
+ * Monday of the week containing `isoDate`. Works on the date string rather than
+ * a local instant, so the grid keys line up with log dates in every timezone.
+ */
+function startOfWeek(isoDate: string): string {
+  const weekday = new Date(`${isoDate}T00:00:00Z`).getUTCDay();
+  return addDaysToLogDate(isoDate, weekday === 0 ? -6 : 1 - weekday);
 }
 
 const HeatmapCell = memo(function HeatmapCell({
@@ -55,22 +57,17 @@ export function CapacityHeatmap({ days }: CapacityHeatmapProps) {
     if (!days.length) return [] as (TrendDay | null)[][];
 
     const byDate = new Map(days.map((day) => [day.logDate, day]));
-    const first = new Date(`${days[0].logDate}T12:00:00`);
-    const last = new Date(`${days[days.length - 1].logDate}T12:00:00`);
-
-    const gridStart = startOfWeek(first);
-    const gridEnd = startOfWeek(last);
-    gridEnd.setDate(gridEnd.getDate() + 6);
+    const gridEnd = addDaysToLogDate(startOfWeek(days[days.length - 1].logDate), 6);
 
     const weeksOut: (TrendDay | null)[][] = [];
-    const cursor = new Date(gridStart);
+    let cursor = startOfWeek(days[0].logDate);
 
+    // ISO dates sort lexicographically, so this is a date comparison.
     while (cursor <= gridEnd) {
       const week: (TrendDay | null)[] = [];
       for (let i = 0; i < 7; i += 1) {
-        const iso = cursor.toISOString().slice(0, 10);
-        week.push(byDate.get(iso) ?? null);
-        cursor.setDate(cursor.getDate() + 1);
+        week.push(byDate.get(cursor) ?? null);
+        cursor = addDaysToLogDate(cursor, 1);
       }
       weeksOut.push(week);
     }

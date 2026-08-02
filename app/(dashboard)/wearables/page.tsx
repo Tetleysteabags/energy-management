@@ -8,22 +8,14 @@ import {
 import { WearableGlanceCard } from "@/components/dashboard/wearable-glance-card";
 import { getWearableGlance } from "@/lib/wearables/queries";
 import { isGoogleHealthConfigured } from "@/lib/wearables/google-health/config";
+import { wearableErrorMessage } from "@/lib/wearables/errors";
 import { READ_METRICS } from "@/lib/wearables/types";
 import { createClient } from "@/lib/supabase/server";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-const ERROR_MESSAGES: Record<string, string> = {
-  google_not_configured:
-    "Google Health OAuth is not configured on the server yet. Add GOOGLE_HEALTH_CLIENT_ID and GOOGLE_HEALTH_CLIENT_SECRET in Vercel.",
-  google_denied: "Google access was not approved. Nothing was connected.",
-  google_state_mismatch: "That connect attempt expired. Please try again.",
-  google_token_exchange: "Google sign-in did not complete. Try Connect again.",
-  save_failed: "Connected to Google but saving the link failed. Try again.",
-};
-
 type WearablesPageProps = {
-  searchParams: Promise<{ error?: string; connected?: string; synced?: string; sync_error?: string }>;
+  searchParams: Promise<{ error?: string; connected?: string; synced?: string }>;
 };
 
 export default async function WearablesPage({ searchParams }: WearablesPageProps) {
@@ -49,7 +41,8 @@ export default async function WearablesPage({ searchParams }: WearablesPageProps
 
   const showDevMock = process.env.NODE_ENV === "development";
   const googleConfigured = isGoogleHealthConfigured();
-  const banner = params.error ? ERROR_MESSAGES[params.error] : params.sync_error ?? null;
+  // Only ever a known code — upstream error text never reaches the page.
+  const banner = wearableErrorMessage(params.error);
   const justConnected = params.connected === "1";
   const justSynced = params.synced === "1";
 
@@ -88,7 +81,8 @@ export default async function WearablesPage({ searchParams }: WearablesPageProps
           <div className="border-border/60 rounded-lg border px-4 py-3 text-sm">
             <p className="font-medium">Connect not available yet</p>
             <p className="text-muted-foreground mt-1">
-              The server needs Google Health API credentials. See docs/supabase-setup.md.
+              Wearable syncing isn&apos;t set up on this server. You can still log everything by
+              hand, or import a CSV.
             </p>
           </div>
         )}

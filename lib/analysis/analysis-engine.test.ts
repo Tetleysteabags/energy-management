@@ -10,7 +10,7 @@
  * Plus missing-day handling.
  */
 
-import { noiseOnly, knownLag, realistic } from "./synthetic-data-generator";
+import { noiseOnly, knownLag, realistic, type Dataset } from "./synthetic-data-generator";
 import {
   buildFrame,
   analyze,
@@ -18,6 +18,9 @@ import {
   runCaseControl,
   loadPercentileCrashRate,
   flagCrashes,
+  type SymptomRowLike,
+  type LoadRowLike,
+  type WearableRowLike,
   DEFAULT_CRASH_RULE,
   type ConfirmatoryResult,
 } from "./analysis-engine";
@@ -33,8 +36,16 @@ function check(name: string, cond: boolean, detail = ""): void {
     console.log(`  FAIL  ${name}  ${detail}`);
   }
 }
-function frameOf(ds: { symptoms: any[]; loads: any[]; wearables: any[] }) {
-  return buildFrame(ds.symptoms, ds.loads, ds.wearables);
+function frameOf(ds: Pick<Dataset, "symptoms" | "loads" | "wearables">) {
+  // The generator's rows are structurally the engine's *Like shapes minus the
+  // open index signature — and LoadRow additionally omits `on_period`, which
+  // the engine reads defensively. buildFrame indexes these dynamically, so the
+  // gap is harmless; the cast records it rather than hiding it behind `any`.
+  return buildFrame(
+    ds.symptoms as unknown as SymptomRowLike[],
+    ds.loads as unknown as LoadRowLike[],
+    ds.wearables as unknown as WearableRowLike[],
+  );
 }
 function byId(res: ConfirmatoryResult[], id: string) {
   return res.find((r) => r.hypothesis.id === id)!;

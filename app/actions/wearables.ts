@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { todayLogDate, yesterdayLogDate } from "@/lib/check-in/queries";
+import { getUserTimeZone } from "@/lib/check-in/timezone";
+import type { WearableErrorCode } from "@/lib/wearables/errors";
 import { syncGoogleHealthGlance } from "@/lib/wearables/google-health/sync";
 import { getProvider } from "@/lib/wearables/providers";
 import {
@@ -12,7 +14,7 @@ import {
   wearableSnapshotToDbRow,
 } from "@/lib/wearables/types";
 
-type ActionResult = { error?: string };
+type ActionResult = { error?: WearableErrorCode };
 
 const WEARABLE_METRIC_COLUMNS =
   "sleep_minutes, sleep_wake_minutes, sleep_efficiency, resting_hr, hrv_ms, steps, active_minutes, spo2, respiratory_rate, skin_temp_c";
@@ -74,7 +76,7 @@ export async function connectMockWearable(): Promise<ActionResult> {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) return { error: "You need to be signed in." };
+  if (!user) return { error: "not_signed_in" };
 
   const { error } = await supabase.from("wearable_connections").upsert(
     {
@@ -87,7 +89,7 @@ export async function connectMockWearable(): Promise<ActionResult> {
     { onConflict: "user_id,provider" },
   );
 
-  if (error) return { error: error.message };
+  if (error) return { error: "save_failed" };
 
   revalidatePath("/wearables");
   return {};
@@ -99,7 +101,7 @@ export async function disconnectWearable(provider: "mock" | "google_health"): Pr
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) return { error: "You need to be signed in." };
+  if (!user) return { error: "not_signed_in" };
 
   const { error } = await supabase
     .from("wearable_connections")
@@ -107,7 +109,7 @@ export async function disconnectWearable(provider: "mock" | "google_health"): Pr
     .eq("user_id", user.id)
     .eq("provider", provider);
 
-  if (error) return { error: error.message };
+  if (error) return { error: "save_failed" };
 
   revalidatePath("/wearables");
   revalidatePath("/");
@@ -120,9 +122,9 @@ export async function syncWearableNow(provider: "mock" | "google_health"): Promi
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) return { error: "You need to be signed in." };
+  if (!user) return { error: "not_signed_in" };
 
-  const today = todayLogDate();
+  const today = todayLogDate(await getUserTimeZone());
   const yesterday = yesterdayLogDate(today);
 
   if (provider === "google_health") {
@@ -136,7 +138,7 @@ export async function syncWearableNow(provider: "mock" | "google_health"): Promi
       sync.today.metrics,
       true,
     );
-    if (todayError) return { error: todayError };
+    if (todayError) return { error: "save_failed" };
 
     const yesterdayError = await upsertGoogleHealthDay(
       supabase,
@@ -145,13 +147,10 @@ export async function syncWearableNow(provider: "mock" | "google_health"): Promi
       sync.yesterday.metrics,
       true,
     );
-    if (yesterdayError) return { error: yesterdayError };
+    if (yesterdayError) return { error: "save_failed" };
 
     if (!hasSyncedData(sync.today.metrics, sync.yesterday.metrics) && sync.warnings.length) {
-      return {
-        error:
-          "Connected, but Google Health returned no data yet. Open the Fitbit app to sync your watch, then try again.",
-      };
+      return { error: "google_no_data" };
     }
 
     await supabase
@@ -173,7 +172,7 @@ export async function syncWearableNow(provider: "mock" | "google_health"): Promi
       onConflict: "user_id,log_date,source",
     });
 
-  if (metricError) return { error: metricError.message };
+  if (metricError) return { error: "save_failed" };
 
   await supabase
     .from("wearable_connections")
@@ -201,7 +200,7 @@ export async function syncWearableNowAction(
 ): Promise<void> {
   const result = await syncWearableNow(provider);
   if (result.error) {
-    redirect(`/wearables?sync_error=${encodeURIComponent(result.error)}`);
+    redirect(`/wearables?error=${result.error}`);
   }
   redirect("/wearables?synced=1");
 }

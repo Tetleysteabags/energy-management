@@ -14,8 +14,19 @@ In [SQL editor](https://supabase.com/dashboard/project/aruelkzwdqnpbxsqsqjp/sql/
 
 1. `supabase/migrations/20250615000000_slice1_schema.sql`
 2. `supabase/migrations/20250616000000_slices_2_7_schema.sql`
+3. `supabase/migrations/20250616100000_wearable_active_minutes.sql`
+4. `supabase/migrations/20250616120000_evening_chest_feeling.sql`
+5. `supabase/migrations/20250618120000_wearable_sleep_resp.sql`
+6. `supabase/migrations/20250618130000_cycle_tracking.sql`
+7. `supabase/migrations/20260801000000_profile_timezone.sql`
+8. `supabase/migrations/20260801000001_account_deletion.sql`
+9. `supabase/migrations/20260801000002_supplement_intake_ownership.sql`
 
 Skip `20250615000001_ui_spec_schema.sql` on a fresh project (slice 1 already includes those columns).
+
+The three `20260801*` migrations are required before inviting anyone: they make
+`profiles.timezone` authoritative, add the `delete_own_account` function behind
+the account-deletion UI, and close the supplement-ownership gap in RLS.
 
 ## 3. Auth
 
@@ -84,7 +95,20 @@ NEXT_PUBLIC_ACCESS_REQUEST_URL=https://formspree.io/f/mzdnqoqb
 
 `NEXT_PUBLIC_ACCESS_REQUEST_URL` powers the **Request access** button on `/how-it-works` and the login screen. The app also falls back to this Formspree form if the env var is unset.
 
-(`GOOGLE_OAUTH_CLIENT_*` works as a fallback alias. `WEARABLE_TOKEN_SECRET` encrypts refresh tokens at rest; on Vercel use a dedicated random string.)
+(`GOOGLE_OAUTH_CLIENT_*` works as a fallback alias.)
+
+**`WEARABLE_TOKEN_SECRET` is required** for wearables to work at all — the
+Connect button stays hidden without it. Generate one with:
+
+```bash
+openssl rand -base64 32
+```
+
+It must be a dedicated value of at least 32 characters. It used to fall back to
+`SUPABASE_SERVICE_ROLE_KEY`; that is now rejected, because rotating the service
+key would have silently made every stored refresh token undecryptable. If you
+ever change this secret, existing wearable connections stop working and users
+have to reconnect — there is no way to re-encrypt what you can no longer read.
 
 **3. Connect flow**
 
@@ -121,3 +145,59 @@ Optional env:
 3. **Analysis** — recurring patterns
 4. **Reports** — summary / export
 5. **Check-in** — live morning or evening form
+
+## 6. Invite-only access
+
+The app is meant to be shared with a handful of people at a time. Two things
+control that, and **only the first is a real boundary**.
+
+### a. Turn off public sign-ups (this is the one that matters)
+
+In [Authentication → Sign In / Providers](https://supabase.com/dashboard/project/aruelkzwdqnpbxsqsqjp/auth/providers),
+disable **Allow new users to sign up**. Then invite people from
+**Authentication → Users → Invite user**.
+
+Without this, Supabase's sign-up endpoint is reachable directly with the public
+anon key — which every browser has — so anyone who knows the project URL can
+create an account regardless of what the app's own UI does.
+
+### b. Set an invite code (a UI gate, not a security control)
+
+```
+SIGNUP_INVITE_CODE=some-phrase-you-share-with-invitees
+```
+
+With this set, `/signup` asks for the code before creating an account, and
+invite links can carry it: `/signup?invite=some-phrase-you-share-with-invitees`.
+
+**Without this variable set, `/signup` shows an "invite only" message and offers
+no form at all.** That is deliberate — sign-up fails closed rather than open. If
+you want people to be able to self-serve with a code, set it; if you would
+rather invite everyone from the Supabase dashboard, leave it unset.
+
+## 7. Privacy page
+
+Two optional variables fill in details the privacy notice otherwise leaves vague:
+
+```
+NEXT_PUBLIC_PRIVACY_CONTACT_EMAIL=you@example.com
+NEXT_PUBLIC_DATA_REGION=the EU (Frankfurt)
+```
+
+Without the contact address, `/privacy` tells people to contact whoever invited
+them. Without the region, it says to ask which region the database runs in.
+Both are worth setting before inviting anyone who isn't a friend.
+
+## 8. Before you invite people — dashboard checklist
+
+Things that cannot be set from this repository:
+
+- [ ] Project region is in the **EU** (special-category health data under GDPR).
+- [ ] **Confirm email** is ON in production.
+- [ ] **Leaked password protection** enabled (Authentication → Policies). The
+      8-character minimum on the sign-up form is client-side only.
+- [ ] **Redirect URLs** limited to the two known callbacks, so the recovery and
+      confirmation flows cannot be pointed elsewhere.
+- [ ] **Public sign-ups disabled** (see §6a).
+- [ ] **Point-in-time recovery / backups** enabled.
+- [ ] Auth **rate limits** reviewed for sign-up and email sending.

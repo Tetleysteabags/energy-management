@@ -4,18 +4,18 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronDown } from "lucide-react";
 import { submitMorningCheckIn } from "@/app/actions/check-in";
-import { LoadSegmentField } from "@/components/check-in/load-segment-field";
 import { SameAsYesterdayButton } from "@/components/check-in/same-as-yesterday-button";
 import { SliderField } from "@/components/check-in/slider-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { capacityWord, chestWord, muscleWord, sleepWord, symptomWord } from "@/lib/check-in/scales";
+import { chestWord, muscleWord, sleepWord, symptomWord } from "@/lib/check-in/scales";
 import { formatLogDateLabel, homePathForLogDate, isToday } from "@/lib/check-in/log-date";
 import type { MorningCheckInValues } from "@/lib/check-in/types";
 
 type MorningCheckInFormProps = {
   logDate: string;
+  timeZone: string;
   initialValues: MorningCheckInValues;
   yesterdayValues: MorningCheckInValues | null;
   hintValues: MorningCheckInValues | null;
@@ -24,6 +24,7 @@ type MorningCheckInFormProps = {
 
 export function MorningCheckInForm({
   logDate,
+  timeZone,
   initialValues,
   yesterdayValues,
   hintValues,
@@ -64,10 +65,10 @@ export function MorningCheckInForm({
     return (
       <div className="border-border/60 rounded-lg border bg-card px-4 py-8 text-center">
         <p className="text-sm font-medium">
-          {isToday(logDate) ? "Logged for today" : "Saved for this day"}
+          {isToday(logDate, timeZone) ? "Logged for today" : "Saved for this day"}
         </p>
         <p className="text-muted-foreground mt-1 text-sm">Morning check-in saved.</p>
-        <Button variant="ghost" className="mt-4" onClick={() => router.push(homePathForLogDate(logDate))}>
+        <Button variant="ghost" className="mt-4" onClick={() => router.push(homePathForLogDate(logDate, timeZone))}>
           Back to home
         </Button>
       </div>
@@ -78,7 +79,7 @@ export function MorningCheckInForm({
     <div className="space-y-6">
       <div className="space-y-1">
         <h1 className="text-xl font-medium">Morning check-in</h1>
-        {!isToday(logDate) ? (
+        {!isToday(logDate, timeZone) ? (
           <p className="text-muted-foreground text-sm">{formatLogDateLabel(logDate)}</p>
         ) : null}
         <p className="text-muted-foreground text-sm">Change only what&apos;s different.</p>
@@ -179,7 +180,7 @@ export function MorningCheckInForm({
 
       {alreadySubmitted ? (
         <p className="text-muted-foreground text-xs">
-          {isToday(logDate)
+          {isToday(logDate, timeZone)
             ? "Updating today's morning entry."
             : `Updating morning entry for ${formatLogDateLabel(logDate)}.`}
         </p>

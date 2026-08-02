@@ -20,12 +20,14 @@ const HOME_EVENT_TYPES = QUICK_EVENT_TYPES.filter(
 type TodayEventsCardProps = {
   events: EventRow[];
   logDate: string;
+  timeZone: string;
   viewingToday?: boolean;
 };
 
 export function TodayEventsCard({
   events,
   logDate,
+  timeZone,
   viewingToday = true,
 }: TodayEventsCardProps) {
   const router = useRouter();
@@ -72,6 +74,7 @@ export function TodayEventsCard({
         <ul className="space-y-2">
           {events.map((event) => (
             <EventRowItem
+              timeZone={timeZone}
               key={event.id}
               event={event}
               disabled={pending}

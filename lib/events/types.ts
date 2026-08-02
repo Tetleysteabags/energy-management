@@ -1,3 +1,5 @@
+import { isoDateInTimeZone } from "@/lib/check-in/log-date";
+
 export const QUICK_EVENT_TYPES = [
   { type: "rest_break", label: "Rest", icon: "☕" },
   { type: "nap", label: "Nap", icon: "😴" },
@@ -60,11 +62,19 @@ export type EventRow = {
   note: string | null;
 };
 
-export function groupEventsByDay(events: EventRow[]): Map<string, EventRow[]> {
+/**
+ * Groups by the calendar day each event falls on *for the user*. Slicing the
+ * date off the ISO string would group by UTC, so an 8pm walk in Los Angeles
+ * would file itself under the following day.
+ */
+export function groupEventsByDay(
+  events: EventRow[],
+  timeZone: string,
+): Map<string, EventRow[]> {
   const grouped = new Map<string, EventRow[]>();
 
   for (const event of events) {
-    const day = event.occurred_at.slice(0, 10);
+    const day = isoDateInTimeZone(new Date(event.occurred_at), timeZone);
     const list = grouped.get(day) ?? [];
     list.push(event);
     grouped.set(day, list);
@@ -73,10 +83,12 @@ export function groupEventsByDay(events: EventRow[]): Map<string, EventRow[]> {
   return grouped;
 }
 
-export function formatEventTime(iso: string): string {
+/** Explicit zone so the server and the browser render the same clock time. */
+export function formatEventTime(iso: string, timeZone: string): string {
   return new Date(iso).toLocaleTimeString(undefined, {
     hour: "numeric",
     minute: "2-digit",
+    timeZone,
   });
 }
 
@@ -91,11 +103,15 @@ export function formatEventDuration(minutes: number | null): string {
   return `${minutes}m`;
 }
 
-export function formatEventTimeRange(occurredAt: string, durationMinutes: number | null): string {
-  const start = formatEventTime(occurredAt);
+export function formatEventTimeRange(
+  occurredAt: string,
+  durationMinutes: number | null,
+  timeZone: string,
+): string {
+  const start = formatEventTime(occurredAt, timeZone);
   if (durationMinutes == null || durationMinutes <= 0) return start;
   const end = new Date(new Date(occurredAt).getTime() + durationMinutes * 60_000);
-  return `${start} – ${formatEventTime(end.toISOString())}`;
+  return `${start} – ${formatEventTime(end.toISOString(), timeZone)}`;
 }
 
 /** `HH:mm` for a datetime-local style input from an ISO timestamp. */

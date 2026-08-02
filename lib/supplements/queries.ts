@@ -1,3 +1,4 @@
+import { yesterdayLogDate } from "@/lib/check-in/log-date";
 import { createClient } from "@/lib/supabase/server";
 
 export type Supplement = {
@@ -43,9 +44,7 @@ export async function getSupplementIntakeForDate(
   const stack = await getSupplementStack();
   if (!stack?.length) return [];
 
-  const yesterday = new Date(`${logDate}T12:00:00`);
-  yesterday.setDate(yesterday.getDate() - 1);
-  const yesterdayDate = yesterday.toISOString().slice(0, 10);
+  const yesterdayDate = yesterdayLogDate(logDate);
 
   const { data: todayIntake } = await supabase
     .from("daily_supplement_intake")

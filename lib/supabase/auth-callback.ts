@@ -22,8 +22,15 @@ export async function handleAuthCallback(request: NextRequest) {
   }
 
   const successRedirect = NextResponse.redirect(new URL(next, origin));
+  // A dead recovery link should offer a new one, not send people to sign-in
+  // with a password they already know they've forgotten.
   const emailFailureRedirect = NextResponse.redirect(
-    new URL("/login?error=confirmation_link_invalid", origin),
+    new URL(
+      type === "recovery"
+        ? "/forgot-password?error=reset_link_invalid"
+        : "/login?error=confirmation_link_invalid",
+      origin,
+    ),
   );
   const authFailureRedirect = NextResponse.redirect(
     new URL("/login?error=auth_callback_failed", origin),

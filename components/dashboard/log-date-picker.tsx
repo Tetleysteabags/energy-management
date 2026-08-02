@@ -13,11 +13,13 @@ import {
 
 type LogDatePickerProps = {
   logDate: string;
+  /** The user's zone, so the chips agree with the dates the server writes. */
+  timeZone: string;
 };
 
-function last7LogDates(): string[] {
+function last7LogDates(timeZone: string): string[] {
   const dates: string[] = [];
-  let cursor = todayLogDate();
+  let cursor = todayLogDate(timeZone);
   for (let i = 0; i < 7; i++) {
     dates.push(cursor);
     cursor = yesterdayLogDate(cursor);
@@ -25,13 +27,16 @@ function last7LogDates(): string[] {
   return dates;
 }
 
-function quickChipLabel(date: string): string {
-  if (isToday(date)) return "Today";
-  if (date === yesterdayLogDate()) return "Yesterday";
-  return new Date(`${date}T12:00:00`).toLocaleDateString(undefined, { weekday: "short" });
+function quickChipLabel(date: string, timeZone: string): string {
+  if (isToday(date, timeZone)) return "Today";
+  if (date === yesterdayLogDate(undefined, timeZone)) return "Yesterday";
+  return new Date(`${date}T12:00:00Z`).toLocaleDateString(undefined, {
+    weekday: "short",
+    timeZone: "UTC",
+  });
 }
 
-export function LogDatePicker({ logDate }: LogDatePickerProps) {
+export function LogDatePicker({ logDate, timeZone }: LogDatePickerProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [pending, startTransition] = useTransition();
@@ -39,7 +44,7 @@ export function LogDatePicker({ logDate }: LogDatePickerProps) {
   function navigate(date: string) {
     startTransition(() => {
       const params = new URLSearchParams(searchParams.toString());
-      if (isToday(date)) {
+      if (isToday(date, timeZone)) {
         params.delete("date");
       } else {
         params.set("date", date);
@@ -52,7 +57,7 @@ export function LogDatePicker({ logDate }: LogDatePickerProps) {
   return (
     <section className="space-y-3">
       <div className="flex flex-wrap gap-2">
-        {last7LogDates().map((date) => (
+        {last7LogDates(timeZone).map((date) => (
           <Button
             key={date}
             type="button"
@@ -62,7 +67,7 @@ export function LogDatePicker({ logDate }: LogDatePickerProps) {
             className="min-h-9"
             onClick={() => navigate(date)}
           >
-            {quickChipLabel(date)}
+            {quickChipLabel(date, timeZone)}
           </Button>
         ))}
       </div>
@@ -75,14 +80,14 @@ export function LogDatePicker({ logDate }: LogDatePickerProps) {
           id="log-date-input"
           type="date"
           value={logDate}
-          max={todayLogDate()}
+          max={todayLogDate(timeZone)}
           disabled={pending}
           className="max-w-40"
           onChange={(event) => {
             if (event.target.value) navigate(event.target.value);
           }}
         />
-        {!isToday(logDate) ? (
+        {!isToday(logDate, timeZone) ? (
           <p className="text-muted-foreground w-full text-xs">{formatLogDateLabel(logDate)}</p>
         ) : null}
       </div>

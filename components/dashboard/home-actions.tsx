@@ -14,7 +14,7 @@ type HomeActionsProps = {
 };
 
 function EditCheckInLinks({ state }: { state: HomeState }) {
-  const dateQuery = logDateQueryParam(state.logDate);
+  const dateQuery = logDateQueryParam(state.logDate, state.timeZone);
 
   return (
     <div className="grid gap-2 sm:grid-cols-2">
@@ -37,7 +37,7 @@ export function HomeActions({ state }: HomeActionsProps) {
   const [pending, startTransition] = useTransition();
   const [loggedMessage, setLoggedMessage] = useState<string | null>(null);
 
-  const dateQuery = logDateQueryParam(state.logDate);
+  const dateQuery = logDateQueryParam(state.logDate, state.timeZone);
   const loggedLabel = state.viewingToday ? "Logged for today" : "Saved for this day";
 
   const canSameAsYesterday =
