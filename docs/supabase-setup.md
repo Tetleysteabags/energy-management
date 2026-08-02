@@ -21,12 +21,14 @@ In [SQL editor](https://supabase.com/dashboard/project/aruelkzwdqnpbxsqsqjp/sql/
 7. `supabase/migrations/20260801000000_profile_timezone.sql`
 8. `supabase/migrations/20260801000001_account_deletion.sql`
 9. `supabase/migrations/20260801000002_supplement_intake_ownership.sql`
+10. `supabase/migrations/20260801000003_error_reports.sql`
 
 Skip `20250615000001_ui_spec_schema.sql` on a fresh project (slice 1 already includes those columns).
 
-The three `20260801*` migrations are required before inviting anyone: they make
+The four `20260801*` migrations are required before inviting anyone: they make
 `profiles.timezone` authoritative, add the `delete_own_account` function behind
-the account-deletion UI, and close the supplement-ownership gap in RLS.
+the account-deletion UI, close the supplement-ownership gap in RLS, and create
+the `error_reports` table the crash log writes to.
 
 ## 3. Auth
 
@@ -201,3 +203,44 @@ Things that cannot be set from this repository:
 - [ ] **Public sign-ups disabled** (see §6a).
 - [ ] **Point-in-time recovery / backups** enabled.
 - [ ] Auth **rate limits** reviewed for sign-up and email sending.
+
+## 9. Reading the crash log
+
+Failures are recorded in two places, neither of which needs a third-party
+service:
+
+1. **Vercel logs** — one structured JSON line per failure, tagged
+   `"event":"app_error"`, with the route, the release SHA and a scrubbed
+   message. Filter on that string. This copy survives the database being the
+   thing that broke.
+2. **`error_reports` in Supabase** — the durable copy, which outlives Vercel's
+   log retention. Read it in the SQL editor:
+
+   ```sql
+   select occurred_at, source, route, digest, release, message
+   from error_reports
+   order by occurred_at desc
+   limit 50;
+   ```
+
+The table is **write-only from the app**: there is no select policy, so no
+account can read it through the anon key. You read it from the dashboard, which
+uses the service role.
+
+Messages are scrubbed before they are stored — emails, JWTs, bearer tokens,
+Google secrets, our own wearable token envelope and long digit runs are all
+redacted, and the text is capped at 2000 characters. `lib/observability/scrub.ts`
+holds the rules and `npm run test:scrub` covers them.
+
+Note that Next.js also writes its own unscrubbed stack traces to stderr. That is
+the server log, where the real detail belongs — but it means Vercel's raw logs
+can contain more than the scrubbed copy does.
+
+### Nothing pushes a notification
+
+Both destinations have to be checked; neither emails or pages you. That was a
+deliberate trade to avoid adding a data processor to a health app. If you want
+push alerting later, `reportError` and `reportUnattributedError` in
+`lib/observability/report-error.ts` are the single seam to extend — but adding
+Sentry or similar means updating the privacy notice's "Who else is involved"
+list, since crash context would then leave the current set of processors.

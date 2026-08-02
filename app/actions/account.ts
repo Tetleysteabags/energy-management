@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { DELETE_CONFIRMATION, isDeletionConfirmed } from "@/lib/account/deletion";
+import { reportError } from "@/lib/observability/report-error";
 
 type ActionResult = { error?: string };
 
@@ -29,6 +30,8 @@ export async function deleteAccount(confirmation: string): Promise<ActionResult>
   const { error } = await supabase.rpc("delete_own_account");
 
   if (error) {
+    // A failed erasure is a compliance problem, not just a bad page.
+    await reportError({ error, route: "/settings/account" });
     return { error: "Couldn't delete the account just now. Try again in a moment." };
   }
 

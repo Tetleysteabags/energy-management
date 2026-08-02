@@ -19,6 +19,16 @@ const SECURITY_HEADERS = [
 ];
 
 const nextConfig: NextConfig = {
+  /*
+   * The app renders no next/image, so the Image Optimization API is pure
+   * attack surface — and it is the only thing that invokes `sharp`, which
+   * carries unpatched libvips CVEs bundled inside Next itself. Turning it off
+   * makes that code path unreachable rather than merely unused.
+   */
+  images: {
+    unoptimized: true,
+  },
+
   async headers() {
     return [
       {

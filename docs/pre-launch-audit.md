@@ -369,10 +369,31 @@ These are dashboard and environment changes this branch cannot make:
    EU region, email confirmation on, leaked-password protection, redirect
    allowlist, backups, rate limits.
 
-### Deliberately not changed
+### Added after the first pass
 
-- **Error monitoring** — still absent. Worth adding before the user count grows
-  past the people who will text you when something breaks.
+- **Dependency patching.** The original audit never ran `npm audit` — a gap on
+  my part. Doing so found 14 vulnerabilities (7 high), including nine Next.js
+  advisories, one of which was a **middleware bypass** that would have
+  undermined the auth checks this app leans on. Next is now on 16.2.12, `shadcn`
+  (a CLI wrongly listed as a runtime dependency, dragging in the MCP SDK, hono,
+  fast-uri and js-yaml) and the unused `drizzle-kit` are gone, and the image
+  optimizer is disabled so the unpatched `sharp` code path is unreachable.
+  Remaining: 3, all inside Next's own bundled `postcss`/`sharp` with no forward
+  fix.
+- **Error monitoring.** `instrumentation.ts` captures every server failure via
+  `onRequestError`; `error.tsx`, `global-error.tsx` and a dashboard boundary
+  give users something calm instead of a broken page; failures are written both
+  to stdout as structured JSON and to a write-only `error_reports` table.
+  Everything is scrubbed first — verified end to end against a running build,
+  where a planted JWT and email came through as `[token]` and `[email]`.
+
+### Deliberately not changed
+- **No push alerting.** The crash log has to be checked; nothing emails you.
+  This was a trade to avoid adding a data processor to a health app — Sentry
+  would mean a new sub-processor and a privacy-notice change. The reporting
+  functions are the seam if that trade stops being worth it.
+- **Next.js writes its own unscrubbed stack traces to stderr.** The scrubbing
+  covers what this app logs and stores, not Next's built-in output.
 - **`isoToTimeInputValue` / `timeInputToIso`** still use the browser's own zone.
   That is correct for a time input the user is looking at, and it now agrees
   with the stored profile zone because `TimeZoneSync` keeps them in step.

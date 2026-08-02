@@ -5,8 +5,11 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { EveningCheckInValues, MorningCheckInValues } from "@/lib/check-in/types";
 import { MAX_NOTES_LENGTH } from "@/lib/check-in/scales";
+import { reportError } from "@/lib/observability/report-error";
 
 type ActionResult = { error?: string };
+
+const SAVE_FAILED = "Couldn't save that just now. Try again in a moment.";
 
 function clampSymptom(value: number): number {
   return Math.min(10, Math.max(0, Math.round(value)));
@@ -55,7 +58,9 @@ export async function submitMorningCheckIn({
   });
 
   if (error) {
-    return { error: error.message };
+    // The raw Postgres text is diagnostics, not something to show a user.
+    await reportError({ error, route: "/check-in" });
+    return { error: SAVE_FAILED };
   }
 
   revalidatePath("/");
@@ -109,7 +114,9 @@ export async function submitEveningCheckIn({
   });
 
   if (error) {
-    return { error: error.message };
+    // The raw Postgres text is diagnostics, not something to show a user.
+    await reportError({ error, route: "/check-in" });
+    return { error: SAVE_FAILED };
   }
 
   revalidatePath("/");
@@ -158,7 +165,9 @@ export async function saveDayFactors({
   });
 
   if (error) {
-    return { error: error.message };
+    // The raw Postgres text is diagnostics, not something to show a user.
+    await reportError({ error, route: "/check-in" });
+    return { error: SAVE_FAILED };
   }
 
   revalidatePath("/");

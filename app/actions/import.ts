@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { csvRowsToDailyLogs, MAX_IMPORT_ROWS, parseCsv } from "@/lib/csv/import";
+import { reportError } from "@/lib/observability/report-error";
 
 type ImportResult = {
   error?: string;
@@ -53,7 +54,10 @@ export async function importDailyLogsCsv(formData: FormData): Promise<ImportResu
   );
 
   // Row-level problems are caught above, so anything left is ours, not theirs.
-  if (error) return { error: "Couldn't save those rows. Try again in a moment." };
+  if (error) {
+    await reportError({ error, route: "/import" });
+    return { error: "Couldn't save those rows. Try again in a moment." };
+  }
 
   revalidatePath("/");
   revalidatePath("/trends");

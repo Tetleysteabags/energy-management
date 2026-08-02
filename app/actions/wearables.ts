@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { todayLogDate, yesterdayLogDate } from "@/lib/check-in/queries";
 import { getUserTimeZone } from "@/lib/check-in/timezone";
 import type { WearableErrorCode } from "@/lib/wearables/errors";
+import { reportError } from "@/lib/observability/report-error";
 import { syncGoogleHealthGlance } from "@/lib/wearables/google-health/sync";
 import { getProvider } from "@/lib/wearables/providers";
 import {
@@ -138,7 +139,10 @@ export async function syncWearableNow(provider: "mock" | "google_health"): Promi
       sync.today.metrics,
       true,
     );
-    if (todayError) return { error: "save_failed" };
+    if (todayError) {
+      await reportError({ error: todayError, route: "/wearables" });
+      return { error: "save_failed" };
+    }
 
     const yesterdayError = await upsertGoogleHealthDay(
       supabase,
@@ -147,7 +151,10 @@ export async function syncWearableNow(provider: "mock" | "google_health"): Promi
       sync.yesterday.metrics,
       true,
     );
-    if (yesterdayError) return { error: "save_failed" };
+    if (yesterdayError) {
+      await reportError({ error: yesterdayError, route: "/wearables" });
+      return { error: "save_failed" };
+    }
 
     if (!hasSyncedData(sync.today.metrics, sync.yesterday.metrics) && sync.warnings.length) {
       return { error: "google_no_data" };
@@ -172,7 +179,10 @@ export async function syncWearableNow(provider: "mock" | "google_health"): Promi
       onConflict: "user_id,log_date,source",
     });
 
-  if (metricError) return { error: "save_failed" };
+  if (metricError) {
+    await reportError({ error: metricError, route: "/wearables" });
+    return { error: "save_failed" };
+  }
 
   await supabase
     .from("wearable_connections")

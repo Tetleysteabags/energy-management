@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { toCsv } from "@/lib/csv/format";
+import { reportError } from "@/lib/observability/report-error";
 
 /**
  * Every column a check-in can hold, in a sensible reading order. This doubles
@@ -54,6 +55,7 @@ export async function GET() {
     .order("log_date", { ascending: true });
 
   if (error) {
+    await reportError({ error, route: "/api/reports/export" });
     return NextResponse.json({ error: "Could not build the export." }, { status: 500 });
   }
 

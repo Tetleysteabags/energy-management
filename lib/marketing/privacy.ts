@@ -41,6 +41,7 @@ export const PRIVACY_SECTIONS: PrivacySection[] = [
       "Supplements you add and whether you took them.",
       "Your crash rule settings and the days they marked as crashes.",
       "If, and only if, you connect a wearable: sleep duration and efficiency, resting heart rate, heart rate variability, steps, active minutes, blood oxygen, respiratory rate and skin temperature.",
+      "When something in the app breaks: a technical record of the failure — which page, when, and the error itself. These are scrubbed of anything personal before they are saved, and are used only to fix the fault.",
     ],
   },
   {
@@ -71,7 +72,7 @@ export const PRIVACY_SECTIONS: PrivacySection[] = [
   {
     heading: "How long it is kept",
     paragraphs: [
-      "Until you delete it. Deleting your account removes your logs, events, supplements, settings, notes and any wearable readings immediately and permanently. Backups taken before the deletion age out on the hosting provider's own retention schedule.",
+      "Until you delete it. Deleting your account removes your logs, events, supplements, settings, notes, any wearable readings and any error records immediately and permanently. Backups taken before the deletion age out on the hosting provider's own retention schedule.",
     ],
   },
   {

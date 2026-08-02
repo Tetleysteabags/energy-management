@@ -5,6 +5,7 @@ import { encryptTokenPayload } from "@/lib/wearables/token-crypto";
 import { syncGoogleHealthGlance } from "@/lib/wearables/google-health/sync";
 import { todayLogDate, yesterdayLogDate } from "@/lib/check-in/log-date";
 import { wearableSnapshotToDbRow } from "@/lib/wearables/types";
+import { reportError } from "@/lib/observability/report-error";
 
 const STATE_COOKIE = "gh_oauth_state";
 
@@ -71,6 +72,7 @@ export async function GET(request: NextRequest) {
     );
 
     if (error) {
+      await reportError({ error, route: "/api/wearables/google/callback" });
       return failure("save_failed");
     }
 
@@ -107,7 +109,8 @@ export async function GET(request: NextRequest) {
     }
 
     return successRedirect;
-  } catch {
+  } catch (error) {
+    await reportError({ error, route: "/api/wearables/google/callback" });
     return failure("google_token_exchange");
   }
 }
