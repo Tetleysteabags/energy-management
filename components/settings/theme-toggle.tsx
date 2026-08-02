@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Monitor, Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 type Theme = "system" | "light" | "dark";
 
@@ -21,7 +22,11 @@ function applyTheme(theme: Theme) {
   document.documentElement.classList.toggle("dark", dark);
 }
 
-export function ThemeToggle() {
+function isDarkAppearance(theme: Theme): boolean {
+  return theme === "dark" || (theme === "system" && prefersDark());
+}
+
+function useThemeState() {
   const [theme, setTheme] = useState<Theme>("system");
   const [mounted, setMounted] = useState(false);
 
@@ -37,7 +42,6 @@ export function ThemeToggle() {
     }
   }, []);
 
-  // Follow OS changes while in "system" mode.
   useEffect(() => {
     if (theme !== "system") return;
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
@@ -56,8 +60,36 @@ export function ThemeToggle() {
     applyTheme(next);
   }
 
+  return { theme, mounted, choose };
+}
+
+type ThemeToggleProps = {
+  variant?: "full" | "compact";
+  className?: string;
+};
+
+export function ThemeToggle({ variant = "full", className }: ThemeToggleProps) {
+  const { theme, mounted, choose } = useThemeState();
+
+  if (variant === "compact") {
+    const dark = mounted ? isDarkAppearance(theme) : false;
+
+    return (
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon-sm"
+        className={cn("text-muted-foreground size-9 min-h-9 shrink-0", className)}
+        aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
+        onClick={() => choose(dark ? "light" : "dark")}
+      >
+        {dark ? <Sun className="size-4" aria-hidden /> : <Moon className="size-4" aria-hidden />}
+      </Button>
+    );
+  }
+
   return (
-    <div className="flex gap-2">
+    <div className={cn("flex gap-2", className)}>
       {OPTIONS.map(({ value, label, Icon }) => {
         const active = mounted && theme === value;
         return (

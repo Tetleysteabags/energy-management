@@ -9,7 +9,11 @@ import { cn } from "@/lib/utils";
 export default function HowItWorksPage() {
   return (
     <div className="bg-muted/30 flex min-h-full flex-col items-center px-4 py-12">
-      <div className="w-full max-w-lg space-y-8">
+      <div className="relative w-full max-w-lg space-y-8">
+        <div className="absolute top-0 right-0">
+          <ThemeToggle variant="compact" />
+        </div>
+
         <header className="space-y-3 text-center">
           <p className="text-2xl font-medium tracking-tight">{HOW_IT_WORKS_PAGE.brand}</p>
           <h1 className="text-xl font-medium">{HOW_IT_WORKS_PAGE.title}</h1>
@@ -17,11 +21,6 @@ export default function HowItWorksPage() {
             {HOW_IT_WORKS_PAGE.subtitle}
           </p>
         </header>
-
-        <section className="space-y-2">
-          <p className="text-muted-foreground text-center text-xs">Appearance</p>
-          <ThemeToggle />
-        </section>
 
         <HowItWorksAccordion />
 
