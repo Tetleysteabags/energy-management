@@ -24,6 +24,19 @@ export default async function AccountSettingsPage() {
       </div>
 
       <section className="border-border/60 space-y-3 rounded-lg border px-4 py-4">
+        <h2 className="text-sm font-medium">Signing in</h2>
+        <p className="text-muted-foreground text-sm leading-relaxed">
+          Set or change a password, or connect Google as another way in.
+        </p>
+        <Link
+          href="/welcome"
+          className="border-input bg-background hover:bg-muted inline-flex min-h-11 w-full items-center justify-center rounded-lg border px-3 text-sm"
+        >
+          Manage sign-in options
+        </Link>
+      </section>
+
+      <section className="border-border/60 space-y-3 rounded-lg border px-4 py-4">
         <h2 className="text-sm font-medium">Take a copy</h2>
         <p className="text-muted-foreground text-sm leading-relaxed">
           Your check-ins as a spreadsheet file — yours to keep, share with a clinician, or move

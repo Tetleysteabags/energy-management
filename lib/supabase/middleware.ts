@@ -43,6 +43,7 @@ export async function updateSession(request: NextRequest, requestHeaders?: Heade
     pathname.startsWith("/auth/callback");
   const isProtected =
     pathname === "/" ||
+    pathname.startsWith("/welcome") ||
     pathname.startsWith("/trends") ||
     pathname.startsWith("/more") ||
     pathname.startsWith("/help") ||

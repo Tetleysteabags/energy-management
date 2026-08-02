@@ -244,3 +244,25 @@ push alerting later, `reportError` and `reportUnattributedError` in
 `lib/observability/report-error.ts` are the single seam to extend — but adding
 Sentry or similar means updating the privacy notice's "Who else is involved"
 list, since crash context would then leave the current set of processors.
+
+## 10. Inviting people (Authentication → Users → Invite user)
+
+With public sign-up disabled, this is how new accounts get created. Supabase
+emails a link that signs the recipient straight in — with no password and no
+linked sign-in provider yet, since an invite skips the normal signup form
+entirely.
+
+That link now lands on `/welcome`, which offers the choice: set a password, or
+link Google to the account via `supabase.auth.linkIdentity()`. Either way the
+person ends up able to sign back in after the invite session expires. If they
+skip both, "Forgot password" on `/login` still works — Supabase's recovery flow
+sets a password whether or not one existed before — but `/welcome` is the
+smoother path, and it stays reachable later from Settings → Your account &
+data → Manage sign-in options.
+
+**The Google option needs one setting enabled first:** in the Supabase
+dashboard, under Authentication, turn on manual identity linking (the exact
+label may read "Manual Linking" or similar, depending on dashboard version —
+search Authentication settings for "linking"). Without it, `linkIdentity()`
+fails and the page falls back to suggesting a password instead — so this isn't
+a hard blocker, just a worse first run until it's turned on.

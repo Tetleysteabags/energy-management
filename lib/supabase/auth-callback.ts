@@ -2,11 +2,20 @@ import { createServerClient } from "@supabase/ssr";
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
 
-function safeNextPath(next: string | null): string {
+function safeNextPath(next: string | null, fallback: string): string {
   if (!next || !next.startsWith("/") || next.startsWith("//")) {
-    return "/";
+    return fallback;
   }
   return next;
+}
+
+/**
+ * A freshly-invited account has no password and no linked sign-in provider —
+ * dropping it straight into the dashboard leaves no way back in once the
+ * session expires. Send invite links to /welcome, which sets one up.
+ */
+function defaultNextForType(type: EmailOtpType | null): string {
+  return type === "invite" ? "/welcome" : "/";
 }
 
 export async function handleAuthCallback(request: NextRequest) {
@@ -15,7 +24,7 @@ export async function handleAuthCallback(request: NextRequest) {
   const code = searchParams.get("code");
   const tokenHash = searchParams.get("token_hash");
   const type = searchParams.get("type") as EmailOtpType | null;
-  const next = safeNextPath(searchParams.get("next"));
+  const next = safeNextPath(searchParams.get("next"), defaultNextForType(type));
 
   if (oauthError) {
     return NextResponse.redirect(new URL("/login?error=auth_callback_failed", origin));

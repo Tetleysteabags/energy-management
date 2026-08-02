@@ -9,6 +9,7 @@ import { buildContentSecurityPolicy, generateNonce } from "@/lib/security/csp";
  */
 const SESSION_ROUTES = [
   "/",
+  "/welcome",
   "/trends",
   "/more",
   "/help",
