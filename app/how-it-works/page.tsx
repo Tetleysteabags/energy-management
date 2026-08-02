@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AccessRequestForm } from "@/components/marketing/access-request-form";
 import { HowItWorksAccordion } from "@/components/marketing/how-it-works-accordion";
+import { ThemeToggle } from "@/components/settings/theme-toggle";
 import { buttonVariants } from "@/components/ui/button";
 import { HOW_IT_WORKS_PAGE } from "@/lib/marketing/how-it-works";
 import { cn } from "@/lib/utils";
@@ -16,6 +17,11 @@ export default function HowItWorksPage() {
             {HOW_IT_WORKS_PAGE.subtitle}
           </p>
         </header>
+
+        <section className="space-y-2">
+          <p className="text-muted-foreground text-center text-xs">Appearance</p>
+          <ThemeToggle />
+        </section>
 
         <HowItWorksAccordion />
 

@@ -18,8 +18,7 @@ export const metadata: Metadata = {
 };
 
 // Applies the saved theme before paint to avoid a flash of the wrong colours.
-// Marketing intro stays light so first impressions stay calm and readable.
-const themeInitScript = `(function(){try{var p=location.pathname||"";if(p==="/how-it-works"||p.indexOf("/how-it-works/")===0){document.documentElement.classList.remove("dark");return;}var t=localStorage.getItem("theme")||"system";var d=t==="dark"||(t==="system"&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.classList.toggle("dark",d);}catch(e){}})();`;
+const themeInitScript = `(function(){try{var t=localStorage.getItem("theme")||"system";var d=t==="dark"||(t==="system"&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.classList.toggle("dark",d);}catch(e){}})();`;
 
 export default function RootLayout({
   children,
