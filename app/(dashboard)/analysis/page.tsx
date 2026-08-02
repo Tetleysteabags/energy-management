@@ -5,6 +5,7 @@ import {
   FindingDetail,
 } from "@/components/analysis/analysis-sections";
 import { InsightCard } from "@/components/insights/insight-card";
+import { INSIGHT_METHOD } from "@/lib/analysis/method-copy";
 import { getAnalysisOutput } from "@/lib/analysis/queries";
 import { BASELINE_TARGET_DAYS } from "@/lib/check-in/scales";
 import { createClient } from "@/lib/supabase/server";
@@ -27,10 +28,13 @@ export default async function AnalysisPage() {
 
   return (
     <div className="space-y-8">
-      <div className="space-y-1">
+      <div className="space-y-2">
         <h1 className="text-xl font-medium">Your patterns</h1>
-        <p className="text-muted-foreground text-sm">
+        <p className="text-muted-foreground text-sm leading-relaxed">
           Confirmed findings only — plain language, with uncertainty shown.
+        </p>
+        <p className="text-muted-foreground text-sm leading-relaxed">
+          {INSIGHT_METHOD.short} Each result is a lead to watch, not proof of cause.
         </p>
       </div>
 

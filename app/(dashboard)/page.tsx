@@ -121,9 +121,14 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
       {state.viewingToday && insights.length ? (
         <section className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-medium">What we&apos;re watching</h2>
-            <Link href="/analysis" className="text-muted-foreground text-xs hover:underline">
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0 space-y-0.5">
+              <h2 className="text-sm font-medium">What we&apos;re watching</h2>
+              <p className="text-muted-foreground text-xs leading-relaxed">
+                Lagged stats on fixed questions — not ML.
+              </p>
+            </div>
+            <Link href="/analysis" className="text-muted-foreground shrink-0 text-xs hover:underline">
               All patterns
             </Link>
           </div>

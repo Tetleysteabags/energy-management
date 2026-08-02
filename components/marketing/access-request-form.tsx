@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,21 +9,6 @@ import { getAccessRequestUrl } from "@/lib/marketing/access-request";
 type AccessRequestFormProps = {
   actionUrl?: string;
 };
-
-function AuthLinks({ preface }: { preface: string }) {
-  return (
-    <p className="text-muted-foreground text-sm leading-relaxed">
-      {preface}{" "}
-      <Link href="/login" className="text-foreground underline-offset-4 hover:underline">
-        Sign in
-      </Link>
-      {" · "}
-      <Link href="/signup" className="text-foreground underline-offset-4 hover:underline">
-        Create account
-      </Link>
-    </p>
-  );
-}
 
 export function AccessRequestForm({
   actionUrl = getAccessRequestUrl(),
@@ -63,17 +47,30 @@ export function AccessRequestForm({
 
   if (sent) {
     return (
-      <div className="space-y-2" role="status">
-        <p className="text-sm leading-relaxed">
-          Thanks — your request is in. Someone will follow up when a spot is available.
+      <div
+        className="border-info/25 bg-info/10 rounded-lg border px-4 py-6 text-center"
+        role="status"
+      >
+        <p className="text-lg font-medium leading-snug tracking-tight">
+          Thanks — your request is in.
         </p>
-        <AuthLinks preface="Already invited, or ready to continue?" />
+        <p className="text-muted-foreground mx-auto mt-2 max-w-sm text-sm leading-relaxed">
+          Someone will follow up when a spot is available.
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <section
+      id="request-access"
+      className="border-border/60 space-y-3 rounded-lg border bg-card px-4 py-4"
+    >
+      <h2 className="text-sm font-medium">Want access?</h2>
+      <p className="text-muted-foreground text-sm leading-relaxed">
+        This is a private app. If you&apos;d like to use it, submit a short request —
+        someone will follow up when a spot is available.
+      </p>
       <form method="POST" action={actionUrl} onSubmit={handleSubmit} className="space-y-3">
         <div className="space-y-2">
           <Label htmlFor="access-name">Name</Label>
@@ -108,8 +105,6 @@ export function AccessRequestForm({
           {pending ? "Sending…" : "Request access"}
         </Button>
       </form>
-
-      <AuthLinks preface="Already submitted your request?" />
-    </div>
+    </section>
   );
 }

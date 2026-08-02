@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { INSIGHT_METHOD } from "@/lib/analysis/method-copy";
 import { getAnalysisOutput } from "@/lib/analysis/queries";
 import { createClient } from "@/lib/supabase/server";
 
@@ -48,7 +49,7 @@ export default async function ReportsPage() {
         <h2 className="text-sm font-medium">Summary</h2>
         <p className="text-sm leading-relaxed">
           {rows?.length ?? 0} recent days logged. This report lists possible patterns
-          from personal data — associations, not diagnoses.
+          from personal data — associations, not diagnoses. {INSIGHT_METHOD.short}
         </p>
       </section>
 
