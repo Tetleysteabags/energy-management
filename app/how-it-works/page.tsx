@@ -50,10 +50,6 @@ export default function HowItWorksPage() {
             Create account
           </Link>
         </div>
-
-        <p className="text-muted-foreground text-center text-xs leading-relaxed">
-          Already invited? Sign in above. New accounts may need confirmation before they work.
-        </p>
       </div>
     </div>
   );
