@@ -266,3 +266,33 @@ label may read "Manual Linking" or similar, depending on dashboard version —
 search Authentication settings for "linking"). Without it, `linkIdentity()`
 fails and the page falls back to suggesting a password instead — so this isn't
 a hard blocker, just a worse first run until it's turned on.
+
+## 11. Switching to a custom domain
+
+Registering a real domain is almost entirely env-vars and dashboard config —
+the app code reads its origin from `NEXT_PUBLIC_SITE_URL` (see
+`lib/supabase/auth-url.ts`), so no code change is needed. Do all of these before
+sending the first invite on the new domain, or confirmation and reset links
+will point at the old address:
+
+1. **Vercel** — add the domain to the project, then set
+   `NEXT_PUBLIC_SITE_URL=https://yourdomain` for Production (and Preview if you
+   use it). This is what every email callback URL is built from.
+2. **Supabase → Authentication → URL configuration** — set **Site URL** to the
+   new domain and add `https://yourdomain/auth/callback` to the **redirect
+   allowlist**. Keep this list tight: it is a security control, so remove old
+   entries you no longer use rather than letting them accumulate.
+3. **Google Cloud → OAuth client(s)** — add the new domain to **Authorized
+   JavaScript origins**, and add both callback paths to **Authorized redirect
+   URIs**: `https://yourdomain/auth/callback` (login) and
+   `https://yourdomain/api/wearables/google/callback` (wearables).
+4. **Optional, now worth setting** — `NEXT_PUBLIC_PRIVACY_CONTACT_EMAIL` (an
+   address on the new domain reads as more trustworthy on the privacy page) and
+   `NEXT_PUBLIC_DATA_REGION`.
+5. **Email deliverability** — Supabase's default sender is fine for a handful of
+   invites, but for a real domain consider configuring custom SMTP so
+   confirmation and reset emails aren't filtered as spam. This matters more once
+   strangers are signing up and can't just text you when a link doesn't arrive.
+
+The hardcoded `energy-management-nine.vercel.app` references elsewhere in this
+doc are examples — replace them with your domain as you go.
