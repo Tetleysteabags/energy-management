@@ -3,6 +3,7 @@ import {
   BookOpen,
   CalendarCheck,
   HeartPulse,
+  LineChart,
   Sparkles,
   type LucideIcon,
 } from "lucide-react";
@@ -82,6 +83,22 @@ export const HOW_IT_WORKS_SECTIONS: HowToSection[] = [
       {
         type: "paragraph",
         text: "It never tells you to push harder. Insights stay cautious: possible patterns, not verdicts.",
+      },
+    ],
+  },
+  {
+    id: "trends",
+    title: "Trends over time",
+    icon: LineChart,
+    blocks: [
+      {
+        type: "paragraph",
+        text: "After a few weeks you can glance at a calm capacity calendar and simple line charts — history to notice, not goals or streaks.",
+      },
+      { type: "trends-sample" },
+      {
+        type: "paragraph",
+        text: "Missing days stay blank. That’s fine — nothing nags you to catch up.",
       },
     ],
   },

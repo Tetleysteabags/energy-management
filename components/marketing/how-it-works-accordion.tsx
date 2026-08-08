@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronDown } from "lucide-react";
+import { TrendsSamplePreview } from "@/components/marketing/trends-sample-preview";
 import { HOW_IT_WORKS_SECTIONS } from "@/lib/marketing/how-it-works";
 import { cn } from "@/lib/utils";
 
@@ -53,6 +54,10 @@ export function HowItWorksAccordion() {
                       ))}
                     </ol>
                   );
+                }
+
+                if (block.type === "trends-sample") {
+                  return <TrendsSamplePreview key={`${section.id}-trends-${index}`} />;
                 }
 
                 return null;

@@ -11,7 +11,8 @@ export type HowToBlock =
   | { type: "paragraph"; text: string }
   | { type: "bullets"; items: string[] }
   | { type: "steps"; items: string[] }
-  | { type: "wearables-link" };
+  | { type: "wearables-link" }
+  | { type: "trends-sample" };
 
 export type HowToSection = {
   id: string;
